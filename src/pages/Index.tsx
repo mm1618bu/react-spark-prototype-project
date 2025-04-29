@@ -29,12 +29,6 @@ const Index = () => {
     }
   ];
 
-  const smallArticles = [
-    { title: 'How Do I Tackle Upcoming Maintenance Tasks' },
-    { title: 'How Do I Reduce My Power Consumption' },
-    { title: 'Management Strategies For Manufacturing Teams' }
-  ];
-
   return (
     <div className="flex h-screen bg-white">
       <Sidebar />
@@ -56,7 +50,6 @@ const Index = () => {
             </div>
             
             <div className="mb-10">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700">Featured Insights</h2>
               <div className="grid grid-cols-2 gap-4">
                 {featuredArticles.map((article, index) => (
                   <ArticleCard 
@@ -64,19 +57,6 @@ const Index = () => {
                     title={article.title}
                     description={article.description}
                     stats={article.stats}
-                  />
-                ))}
-              </div>
-            </div>
-            
-            <div className="mb-10">
-              <h2 className="text-xl font-semibold mb-4 text-gray-700">Quick Answers</h2>
-              <div className="grid grid-cols-3 gap-3">
-                {smallArticles.map((article, index) => (
-                  <ArticleCard 
-                    key={index}
-                    title={article.title}
-                    compact
                   />
                 ))}
               </div>
