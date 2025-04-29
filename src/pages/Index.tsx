@@ -12,20 +12,16 @@ const Index = () => {
   const featuredArticles = [
     {
       title: 'How Data Fuels The Move To Smart Manufacturing',
-      description: 'Digital transformation is critical to ensuring a positive outcome in manufacturing and design. Here are four ways data and AI get the job done.',
-      stats: { views: 320, comments: 15, likes: 140 }
+      description: 'Digital transformation is critical to ensuring a positive outcome in manufacturing and design. Here are four ways data and AI get the job done.'
     },
     {
-      title: 'How To Handle Breakdown During Production',
-      stats: { views: 185, comments: 8, likes: 72 }
+      title: 'How To Handle Breakdown During Production'
     },
     {
-      title: 'Reduce Downtime For Meeting High Demand',
-      stats: { views: 210, comments: 12, likes: 93 }
+      title: 'Reduce Downtime For Meeting High Demand'
     },
     {
-      title: 'Leading With Innovation In Smart Factories',
-      stats: { views: 275, comments: 18, likes: 120 }
+      title: 'Leading With Innovation In Smart Factories'
     }
   ];
 
@@ -56,7 +52,6 @@ const Index = () => {
                     key={index}
                     title={article.title}
                     description={article.description}
-                    stats={article.stats}
                   />
                 ))}
               </div>
