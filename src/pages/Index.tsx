@@ -53,10 +53,6 @@ const Index = () => {
                 <span>)</span>
               </div>
               <h1 className="text-2xl font-medium text-gray-700 mb-8">Discover Infinite Wisdom</h1>
-              
-              <div className="w-full max-w-xl">
-                <SearchBar />
-              </div>
             </div>
             
             <div className="mb-10">
@@ -84,6 +80,10 @@ const Index = () => {
                   />
                 ))}
               </div>
+            </div>
+            
+            <div className="mt-8 w-full max-w-xl mx-auto">
+              <SearchBar />
             </div>
           </div>
           
