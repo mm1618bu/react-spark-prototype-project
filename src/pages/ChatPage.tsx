@@ -8,42 +8,73 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { SendIcon, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { sendQuery, QueryResponse } from '@/services/apiService';
+import { toast } from '@/hooks/use-toast';
 
 const ChatPage = () => {
   const [searchParams] = useSearchParams();
   const initialQuery = searchParams.get('q') || '';
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
   const [messages, setMessages] = useState<Array<{role: 'user' | 'system', content: string}>>([]);
 
   useEffect(() => {
     if (initialQuery) {
-      setMessages([
-        { role: 'user', content: initialQuery },
-        { role: 'system', content: 'I can help you find information about that. What specifically would you like to know?' }
-      ]);
+      setMessages([{ role: 'user', content: initialQuery }]);
+      
+      // Send the initial query to the backend
+      handleQueryBackend(initialQuery);
     }
   }, [initialQuery]);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim()) return;
-    
-    setMessages(prev => [...prev, { role: 'user', content: input }]);
-    
-    // Simulate response
-    setTimeout(() => {
+  const handleQueryBackend = async (query: string) => {
+    setIsLoading(true);
+    try {
+      const response = await sendQuery(query);
+      
       setMessages(prev => [
         ...prev, 
         { 
           role: 'system', 
-          content: `Here's some information about "${input}". This is a simulated response as this is a prototype.` 
+          content: response.response || "I'm sorry, I couldn't process that request."
         }
       ]);
-    }, 1000);
+    } catch (error) {
+      console.error('Error querying the backend:', error);
+      
+      toast({
+        title: "Backend Error",
+        description: "Failed to get a response from the backend. Using simulated response instead.",
+        variant: "destructive"
+      });
+      
+      // Fallback to simulated response if backend call fails
+      setMessages(prev => [
+        ...prev, 
+        { 
+          role: 'system', 
+          content: `Here's some information about "${query}". This is a simulated response as this is a prototype or the backend is unavailable.` 
+        }
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
     
+    const userQuery = input.trim();
     setInput('');
+    
+    // Add user message immediately
+    setMessages(prev => [...prev, { role: 'user', content: userQuery }]);
+    
+    // Process with backend
+    await handleQueryBackend(userQuery);
   };
 
   return (
@@ -79,6 +110,11 @@ const ChatPage = () => {
                 <p>{message.content}</p>
               </div>
             ))}
+            {isLoading && (
+              <div className="bg-white border shadow-sm p-4 rounded-lg mr-12">
+                <p className="text-gray-500">Thinking...</p>
+              </div>
+            )}
           </div>
         </main>
         
@@ -89,8 +125,13 @@ const ChatPage = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Type your message here..."
               className="flex-1"
+              disabled={isLoading}
             />
-            <Button type="submit" className="bg-sage-500 hover:bg-sage-600">
+            <Button 
+              type="submit" 
+              className="bg-sage-500 hover:bg-sage-600"
+              disabled={isLoading}
+            >
               <SendIcon size={18} />
             </Button>
           </form>
