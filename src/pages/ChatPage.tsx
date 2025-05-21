@@ -40,6 +40,7 @@ const ChatPage = () => {
     setIsLoading(true);
     try {
       const response = await sendQuery(query);
+      console.log('Received response from backend:', response);
       
       setMessages(prev => [
         ...prev, 
@@ -117,7 +118,7 @@ const ChatPage = () => {
                 }`}
               >
                 {message.role === 'system' && message.format === 'markdown' ? (
-                  <div className="prose prose-sm max-w-none">
+                  <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-sage-800 prose-p:text-gray-600 prose-a:text-sage-600 prose-a:no-underline hover:prose-a:underline">
                     <ReactMarkdown>{message.content}</ReactMarkdown>
                   </div>
                 ) : (
