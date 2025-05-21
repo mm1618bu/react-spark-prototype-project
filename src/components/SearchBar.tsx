@@ -19,7 +19,7 @@ export const SearchBar = () => {
     setIsLoading(true);
     try {
       // First, try to send the query to the backend
-      const result = await sendQuery(query);
+      await sendQuery(query);
       
       // If successful, navigate to the chat page with the query
       navigate(`/chat?q=${encodeURIComponent(query)}`);

@@ -10,6 +10,13 @@ import { SendIcon, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { sendQuery, QueryResponse } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
+import ReactMarkdown from 'react-markdown';
+
+interface Message {
+  role: 'user' | 'system';
+  content: string;
+  format?: 'markdown' | 'text';
+}
 
 const ChatPage = () => {
   const [searchParams] = useSearchParams();
@@ -18,7 +25,7 @@ const ChatPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
   
-  const [messages, setMessages] = useState<Array<{role: 'user' | 'system', content: string}>>([]);
+  const [messages, setMessages] = useState<Message[]>([]);
 
   useEffect(() => {
     if (initialQuery) {
@@ -38,7 +45,8 @@ const ChatPage = () => {
         ...prev, 
         { 
           role: 'system', 
-          content: response.response || "I'm sorry, I couldn't process that request."
+          content: response.response || "I'm sorry, I couldn't process that request.",
+          format: response.format || 'markdown'
         }
       ]);
     } catch (error) {
@@ -55,7 +63,8 @@ const ChatPage = () => {
         ...prev, 
         { 
           role: 'system', 
-          content: `Here's some information about "${query}". This is a simulated response as this is a prototype or the backend is unavailable.` 
+          content: `Here's some information about "${query}". This is a simulated response as this is a prototype or the backend is unavailable.`,
+          format: 'markdown'
         }
       ]);
     } finally {
@@ -107,7 +116,13 @@ const ChatPage = () => {
                     : 'bg-white border shadow-sm mr-12'
                 }`}
               >
-                <p>{message.content}</p>
+                {message.role === 'system' && message.format === 'markdown' ? (
+                  <div className="prose prose-sm max-w-none">
+                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                  </div>
+                ) : (
+                  <p>{message.content}</p>
+                )}
               </div>
             ))}
             {isLoading && (

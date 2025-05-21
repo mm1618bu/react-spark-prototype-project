@@ -6,6 +6,7 @@ const API_URL = 'http://localhost:5001';
 export interface QueryResponse {
   response: string;
   metadata?: any;
+  format?: 'markdown' | 'text';
 }
 
 export async function sendQuery(query: string): Promise<QueryResponse> {
@@ -18,7 +19,10 @@ export async function sendQuery(query: string): Promise<QueryResponse> {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ query }),
+      body: JSON.stringify({ 
+        query,
+        responseFormat: 'markdown' // Request markdown format from backend
+      }),
     });
 
     console.log(`Response status: ${response.status}`);
@@ -28,7 +32,10 @@ export async function sendQuery(query: string): Promise<QueryResponse> {
 
     const data = await response.json();
     console.log('Response data:', data);
-    return data;
+    return {
+      ...data,
+      format: 'markdown' // Ensure the response is marked as markdown for rendering
+    };
   } catch (error) {
     console.error('Error querying the API:', error);
     throw error;
