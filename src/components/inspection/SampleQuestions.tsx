@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Logo } from '@/components/Logo';
 
 interface SampleQuestionsProps {
   onQuestionClick: (question: string) => void;
@@ -31,6 +32,13 @@ export const SampleQuestions = ({ onQuestionClick, isMinimized = false }: Sample
 
   return (
     <div className="mb-6">
+      <div className="flex justify-center mb-8">
+        <div className="flex flex-col items-center">
+          <Logo />
+          <p className="text-gray-600 text-sm mt-2">Discover Infinite Wisdom</p>
+        </div>
+      </div>
+      
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sampleQuestions.map((question, index) => (
           <Card 
