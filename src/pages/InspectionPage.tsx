@@ -48,40 +48,42 @@ const InspectionPage = () => {
                 Loading inspection data...
               </div>
             ) : graphData ? (
-              <div 
-                className={`bg-white rounded-lg shadow-sm border transition-all duration-300 ${
-                  isMinimized ? 'p-2' : 'p-6'
-                }`}
-              >
-                <h2 className={`font-semibold mb-6 transition-all duration-300 ${
-                  isMinimized ? 'text-sm mb-2' : 'text-xl'
-                }`}>
-                  {graphData.title}
-                </h2>
-                
-                {!isMinimized && (
-                  <>
-                    <VibrationChart graphData={graphData} />
-                    <AnomaliesList anomalies={graphData.anomalies} />
-                  </>
-                )}
-                
-                {isMinimized && (
-                  <div className="text-sm text-gray-500">
-                    Chart minimized - ask your question below
-                  </div>
-                )}
-              </div>
+              <>
+                <div 
+                  className={`bg-white rounded-lg shadow-sm border transition-all duration-300 ${
+                    isMinimized ? 'p-2' : 'p-6'
+                  }`}
+                >
+                  <h2 className={`font-semibold mb-6 transition-all duration-300 ${
+                    isMinimized ? 'text-sm mb-2' : 'text-xl'
+                  }`}>
+                    {graphData.title}
+                  </h2>
+                  
+                  {!isMinimized && (
+                    <>
+                      <VibrationChart graphData={graphData} />
+                      <AnomaliesList anomalies={graphData.anomalies} />
+                    </>
+                  )}
+                  
+                  {isMinimized && (
+                    <div className="text-sm text-gray-500">
+                      Chart minimized - ask your question below
+                    </div>
+                  )}
+                </div>
+
+                <SampleQuestions 
+                  onQuestionClick={handleQuestionClick} 
+                  isMinimized={isMinimized}
+                />
+              </>
             ) : (
               <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
                 No inspection data available
               </div>
             )}
-
-            <SampleQuestions 
-              onQuestionClick={handleQuestionClick} 
-              isMinimized={isMinimized}
-            />
           </div>
         </main>
         
