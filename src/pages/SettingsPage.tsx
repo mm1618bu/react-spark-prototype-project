@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ArrowLeft, Database } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -87,49 +88,61 @@ const SettingsPage = () => {
           </div>
         </header>
         
-        <main className="flex-1 overflow-y-auto p-8">
-          <div className="max-w-md mx-auto space-y-8">
-            <div className="text-center">
-              <h1 className="text-2xl font-semibold mb-2">Database Connection</h1>
-              <p className="text-gray-600">Connect to your database</p>
+        <main className="flex-1 overflow-y-auto p-6">
+          <div className="max-w-2xl mx-auto space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold">Settings</h1>
+              <p className="text-muted-foreground mt-2">Manage your application settings and database connections.</p>
             </div>
 
-            <form onSubmit={handleDatabaseConnection} className="space-y-6">
-              <div className="space-y-2">
-                <Label htmlFor="database-type" className="text-sm font-medium">Database Type</Label>
-                <Select value={selectedDatabase} onValueChange={setSelectedDatabase}>
-                  <SelectTrigger className="h-12">
-                    <SelectValue placeholder="Select database type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="SQL">SQL</SelectItem>
-                    <SelectItem value="MONGO">MongoDB</SelectItem>
-                    <SelectItem value="IMPORT_FILE">Import File</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="database-url" className="text-sm font-medium">Database URL</Label>
-                <Input
-                  id="database-url"
-                  type="url"
-                  placeholder="Enter your database connection URL"
-                  value={databaseUrl}
-                  onChange={(e) => setDatabaseUrl(e.target.value)}
-                  disabled={isLoading}
-                  className="h-12"
-                />
-              </div>
-              
-              <Button 
-                type="submit" 
-                className="w-full h-12"
-                disabled={isLoading || !selectedDatabase || !databaseUrl}
-              >
-                {isLoading ? 'Connecting...' : 'Add Connection'}
-              </Button>
-            </form>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database size={20} />
+                  Database Connection
+                </CardTitle>
+                <CardDescription>
+                  Connect to your database by selecting the type and providing the connection URL.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleDatabaseConnection} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="database-type">Database Type</Label>
+                    <Select value={selectedDatabase} onValueChange={setSelectedDatabase}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select database type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="SQL">SQL</SelectItem>
+                        <SelectItem value="MONGO">MongoDB</SelectItem>
+                        <SelectItem value="IMPORT_FILE">Import File</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="database-url">Database URL</Label>
+                    <Input
+                      id="database-url"
+                      type="url"
+                      placeholder="Enter your database connection URL"
+                      value={databaseUrl}
+                      onChange={(e) => setDatabaseUrl(e.target.value)}
+                      disabled={isLoading}
+                    />
+                  </div>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full"
+                    disabled={isLoading || !selectedDatabase || !databaseUrl}
+                  >
+                    {isLoading ? 'Connecting...' : 'Add Connection'}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
         </main>
         
