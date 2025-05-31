@@ -104,27 +104,44 @@ const InspectionPage = () => {
   }, [machineId]);
 
   const formatChartData = (vibrationData: VibrationDataPoint[]) => {
-    return vibrationData.map(point => ({
+    return vibrationData.map((point, index) => ({
       timestamp: new Date(point.timestamp).toLocaleDateString(),
       value: point.value,
-      fullTimestamp: point.timestamp
+      fullTimestamp: point.timestamp,
+      index: index
     }));
   };
 
   const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
     return anomalies.map((anomaly, index) => {
-      const startDate = new Date(anomaly.start).toLocaleDateString();
-      const endDate = new Date(anomaly.end).toLocaleDateString();
+      // Find the closest data points for start and end times
+      const startTime = new Date(anomaly.start).getTime();
+      const endTime = new Date(anomaly.end).getTime();
+      
+      let startIndex = 0;
+      let endIndex = chartData.length - 1;
+      
+      // Find the closest data points to the anomaly times
+      chartData.forEach((point, idx) => {
+        const pointTime = new Date(point.fullTimestamp).getTime();
+        if (Math.abs(pointTime - startTime) < Math.abs(new Date(chartData[startIndex].fullTimestamp).getTime() - startTime)) {
+          startIndex = idx;
+        }
+        if (Math.abs(pointTime - endTime) < Math.abs(new Date(chartData[endIndex].fullTimestamp).getTime() - endTime)) {
+          endIndex = idx;
+        }
+      });
       
       return (
         <ReferenceArea
-          key={index}
-          x1={startDate}
-          x2={endDate}
-          fill="#ff444440"
-          fillOpacity={0.3}
-          stroke="#ff4444"
-          strokeWidth={1}
+          key={`anomaly-${index}`}
+          x1={chartData[startIndex]?.timestamp}
+          x2={chartData[endIndex]?.timestamp}
+          fill="#ff0000"
+          fillOpacity={0.2}
+          stroke="#ff0000"
+          strokeWidth={2}
+          strokeOpacity={0.8}
         />
       );
     });
@@ -188,6 +205,7 @@ const InspectionPage = () => {
                         formatter={(value: any) => [value, 'Vibration']}
                       />
                       <Legend />
+                      {renderAnomalyAreas(graphData.anomalies, formatChartData(graphData.vibration_data))}
                       <Line 
                         type="monotone" 
                         dataKey="value" 
@@ -196,7 +214,6 @@ const InspectionPage = () => {
                         dot={{ r: 2 }}
                         name="Vibration Data"
                       />
-                      {renderAnomalyAreas(graphData.anomalies, formatChartData(graphData.vibration_data))}
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
