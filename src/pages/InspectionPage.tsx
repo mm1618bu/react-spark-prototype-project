@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
@@ -118,36 +119,62 @@ const InspectionPage = () => {
 
   const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
     return anomalies.map((anomaly, index) => {
-      // Find the closest data points for start and end times
       const startTime = new Date(anomaly.start).getTime();
       const endTime = new Date(anomaly.end).getTime();
       
-      let startIndex = 0;
-      let endIndex = chartData.length - 1;
-      
-      // Find the closest data points to the anomaly times
-      chartData.forEach((point, idx) => {
+      // Find data points that fall within the anomaly time range
+      const anomalyPoints = chartData.filter(point => {
         const pointTime = new Date(point.fullTimestamp).getTime();
-        if (Math.abs(pointTime - startTime) < Math.abs(new Date(chartData[startIndex].fullTimestamp).getTime() - startTime)) {
-          startIndex = idx;
-        }
-        if (Math.abs(pointTime - endTime) < Math.abs(new Date(chartData[endIndex].fullTimestamp).getTime() - endTime)) {
-          endIndex = idx;
-        }
+        return pointTime >= startTime && pointTime <= endTime;
       });
       
-      return (
-        <ReferenceArea
-          key={`anomaly-${index}`}
-          x1={chartData[startIndex]?.timestamp}
-          x2={chartData[endIndex]?.timestamp}
-          fill="#ff0000"
-          fillOpacity={0.2}
-          stroke="#ff0000"
-          strokeWidth={2}
-          strokeOpacity={0.8}
-        />
-      );
+      if (anomalyPoints.length === 0) {
+        // If no exact points, find closest surrounding points
+        let startIndex = 0;
+        let endIndex = chartData.length - 1;
+        
+        chartData.forEach((point, idx) => {
+          const pointTime = new Date(point.fullTimestamp).getTime();
+          if (pointTime <= startTime) {
+            startIndex = idx;
+          }
+          if (pointTime <= endTime) {
+            endIndex = idx;
+          }
+        });
+        
+        // Ensure we have at least one point to highlight
+        if (startIndex === endIndex && startIndex < chartData.length - 1) {
+          endIndex = startIndex + 1;
+        }
+        
+        return (
+          <ReferenceArea
+            key={`anomaly-${index}`}
+            x1={chartData[startIndex]?.timestamp}
+            x2={chartData[endIndex]?.timestamp}
+            fill="#ef4444"
+            fillOpacity={0.3}
+            stroke="#dc2626"
+            strokeWidth={1}
+            strokeOpacity={0.6}
+          />
+        );
+      } else {
+        // Use the actual anomaly points
+        return (
+          <ReferenceArea
+            key={`anomaly-${index}`}
+            x1={anomalyPoints[0].timestamp}
+            x2={anomalyPoints[anomalyPoints.length - 1].timestamp}
+            fill="#ef4444"
+            fillOpacity={0.3}
+            stroke="#dc2626"
+            strokeWidth={1}
+            strokeOpacity={0.6}
+          />
+        );
+      }
     });
   };
 
@@ -215,7 +242,7 @@ const InspectionPage = () => {
                         dataKey="value" 
                         stroke="#2563eb" 
                         strokeWidth={2}
-                        dot={{ r: 2 }}
+                        dot={{ r: 3, fill: "#2563eb" }}
                         name="Vibration Data"
                       />
                     </LineChart>
