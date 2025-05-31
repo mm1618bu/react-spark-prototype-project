@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Settings, Info, BookmarkIcon } from 'lucide-react';
+import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +10,8 @@ export const Sidebar = () => {
 
   return (
     <div className="h-screen bg-sage-500 w-[80px] flex flex-col items-center py-4 text-white">
-      <div className="mb-8 text-xl font-bold">
+      <div className="mb-8 text-xl font-bold flex items-center">
+        <Heart size={24} className="text-red-400 mr-1" />
         <span className="text-white">(</span>
         <span className="text-sage-200">*</span>
         <span className="text-white">)</span>
@@ -25,6 +26,24 @@ export const Sidebar = () => {
             </TooltipTrigger>
             <TooltipContent side="right">
               <p>Documents</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:bg-sage-600"
+                onClick={() => navigate('/machine-health')}
+              >
+                <Heart size={20} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Machine Health</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
