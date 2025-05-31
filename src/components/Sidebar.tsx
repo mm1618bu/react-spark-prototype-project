@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
@@ -11,7 +10,6 @@ export const Sidebar = () => {
   return (
     <div className="h-screen bg-sage-500 w-[80px] flex flex-col items-center py-4 text-white">
       <div className="mb-8 text-xl font-bold flex items-center">
-        <Heart size={24} className="text-red-400 mr-1" />
         <span className="text-white">(</span>
         <span className="text-sage-200">*</span>
         <span className="text-white">)</span>
