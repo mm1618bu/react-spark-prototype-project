@@ -1,17 +1,28 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Footer } from '@/components/Footer';
 import { useSearchParams } from 'react-router-dom';
 import { InspectionHeader } from '@/components/inspection/InspectionHeader';
 import { VibrationChart } from '@/components/inspection/VibrationChart';
 import { AnomaliesList } from '@/components/inspection/AnomaliesList';
+import { ChatPromptBar } from '@/components/inspection/ChatPromptBar';
 import { useInspectionData } from '@/hooks/useInspectionData';
 
 const InspectionPage = () => {
   const [searchParams] = useSearchParams();
   const machineId = searchParams.get('machineId');
   const { graphData, isLoading } = useInspectionData(machineId);
+  const [isMinimized, setIsMinimized] = useState(false);
+
+  const handleMessageSent = (message: string) => {
+    console.log('Message sent:', message);
+    // Here you could integrate with your chat/query service
+  };
+
+  const handleTyping = (isTyping: boolean) => {
+    setIsMinimized(isTyping);
+  };
 
   return (
     <div className="flex h-screen bg-white">
@@ -32,12 +43,29 @@ const InspectionPage = () => {
                 Loading inspection data...
               </div>
             ) : graphData ? (
-              <div className="bg-white rounded-lg shadow-sm border p-6">
-                <h2 className="text-xl font-semibold mb-6">{graphData.title}</h2>
+              <div 
+                className={`bg-white rounded-lg shadow-sm border transition-all duration-300 ${
+                  isMinimized ? 'p-2' : 'p-6'
+                }`}
+              >
+                <h2 className={`font-semibold mb-6 transition-all duration-300 ${
+                  isMinimized ? 'text-sm mb-2' : 'text-xl'
+                }`}>
+                  {graphData.title}
+                </h2>
                 
-                <VibrationChart graphData={graphData} />
+                {!isMinimized && (
+                  <>
+                    <VibrationChart graphData={graphData} />
+                    <AnomaliesList anomalies={graphData.anomalies} />
+                  </>
+                )}
                 
-                <AnomaliesList anomalies={graphData.anomalies} />
+                {isMinimized && (
+                  <div className="text-sm text-gray-500">
+                    Chart minimized - ask your question below
+                  </div>
+                )}
               </div>
             ) : (
               <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
@@ -46,6 +74,8 @@ const InspectionPage = () => {
             )}
           </div>
         </main>
+        
+        <ChatPromptBar onMessageSent={handleMessageSent} onTyping={handleTyping} />
         
         <Footer />
       </div>
