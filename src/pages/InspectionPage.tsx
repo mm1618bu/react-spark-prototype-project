@@ -7,6 +7,7 @@ import { InspectionHeader } from '@/components/inspection/InspectionHeader';
 import { VibrationChart } from '@/components/inspection/VibrationChart';
 import { AnomaliesList } from '@/components/inspection/AnomaliesList';
 import { ChatPromptBar } from '@/components/inspection/ChatPromptBar';
+import { SampleQuestions } from '@/components/inspection/SampleQuestions';
 import { useInspectionData } from '@/hooks/useInspectionData';
 
 const InspectionPage = () => {
@@ -24,6 +25,10 @@ const InspectionPage = () => {
     setIsMinimized(isTyping);
   };
 
+  const handleQuestionClick = (question: string) => {
+    handleMessageSent(question);
+  };
+
   return (
     <div className="flex h-screen bg-white">
       <Sidebar />
@@ -37,6 +42,11 @@ const InspectionPage = () => {
               <h1 className="text-2xl font-bold mb-2">Anomaly Inspection</h1>
               <p className="text-gray-600">Machine ID: {machineId}</p>
             </div>
+
+            <SampleQuestions 
+              onQuestionClick={handleQuestionClick} 
+              isMinimized={isMinimized}
+            />
             
             {isLoading ? (
               <div className="bg-white rounded-lg shadow-sm border p-8 text-center text-gray-500">
