@@ -34,6 +34,10 @@ export const sampleGraphData: GraphData = {
       end: "2024-11-02T06:15:00Z"
     },
     {
+      start: "2024-12-09T00:00:00Z",
+      end: "2024-12-14T00:00:00Z"
+    },
+    {
       start: "2024-12-10T01:30:00Z",
       end: "2024-12-10T02:00:00Z"
     }
