@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
@@ -7,7 +6,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { toast } from '@/hooks/use-toast';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceArea } from 'recharts';
 
 interface VibrationDataPoint {
   timestamp: string;
@@ -112,16 +111,23 @@ const InspectionPage = () => {
     }));
   };
 
-  const renderAnomalyLines = (anomalies: Anomaly[]) => {
-    return anomalies.map((anomaly, index) => (
-      <ReferenceLine
-        key={index}
-        x={new Date(anomaly.start).toLocaleDateString()}
-        stroke="#ff4444"
-        strokeDasharray="5 5"
-        label={{ value: "Anomaly", position: "top" }}
-      />
-    ));
+  const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
+    return anomalies.map((anomaly, index) => {
+      const startDate = new Date(anomaly.start).toLocaleDateString();
+      const endDate = new Date(anomaly.end).toLocaleDateString();
+      
+      return (
+        <ReferenceArea
+          key={index}
+          x1={startDate}
+          x2={endDate}
+          fill="#ff444440"
+          fillOpacity={0.3}
+          stroke="#ff4444"
+          strokeWidth={1}
+        />
+      );
+    });
   };
 
   return (
@@ -190,7 +196,7 @@ const InspectionPage = () => {
                         dot={{ r: 2 }}
                         name="Vibration Data"
                       />
-                      {renderAnomalyLines(graphData.anomalies)}
+                      {renderAnomalyAreas(graphData.anomalies, formatChartData(graphData.vibration_data))}
                     </LineChart>
                   </ResponsiveContainer>
                 </div>
