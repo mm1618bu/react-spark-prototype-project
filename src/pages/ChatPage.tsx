@@ -113,12 +113,12 @@ const ChatPage = () => {
                 key={index} 
                 className={`p-4 rounded-lg ${
                   message.role === 'user' 
-                    ? 'bg-blue-100 ml-12' 
+                    ? 'bg-sage-100 ml-12' 
                     : 'bg-white border shadow-sm mr-12'
                 }`}
               >
                 {message.role === 'system' && message.format === 'markdown' ? (
-                  <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-gray-800 prose-p:text-gray-600 prose-a:text-blue-600 prose-a:no-underline hover:prose-a:underline">
+                  <div className="prose prose-sm max-w-none prose-headings:font-semibold prose-headings:text-sage-800 prose-p:text-gray-600 prose-a:text-sage-600 prose-a:no-underline hover:prose-a:underline">
                     <ReactMarkdown>{message.content}</ReactMarkdown>
                   </div>
                 ) : (
@@ -145,7 +145,7 @@ const ChatPage = () => {
             />
             <Button 
               type="submit" 
-              className="bg-primary hover:bg-primary/90"
+              className="bg-sage-500 hover:bg-sage-600"
               disabled={isLoading}
             >
               <SendIcon size={18} />

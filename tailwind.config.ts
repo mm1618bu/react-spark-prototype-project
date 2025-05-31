@@ -21,6 +21,18 @@ export default {
     },
     extend: {
       colors: {
+        sage: {
+          '50': '#f0f5f1',
+          '100': '#dae8dc',
+          '200': '#b8d2bc',
+          '300': '#90b497',
+          '400': '#699a72',
+          '500': '#4d8056',
+          '600': '#3c6744',
+          '700': '#305237',
+          '800': '#28432d',
+          '900': '#223826',
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
