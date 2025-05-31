@@ -88,23 +88,41 @@ export const VibrationChart = ({ graphData }: VibrationChartProps) => {
           margin={{
             top: 20,
             right: 30,
-            left: 20,
-            bottom: 20,
+            left: 40,
+            bottom: 60,
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis 
             dataKey="timestamp" 
-            label={{ value: graphData.x_label, position: 'insideBottom', offset: -10 }}
+            label={{ 
+              value: graphData.x_label, 
+              position: 'insideBottom', 
+              offset: -5,
+              textAnchor: 'middle'
+            }}
+            tick={{ fontSize: 12 }}
+            height={60}
           />
           <YAxis 
-            label={{ value: graphData.y_label, angle: -90, position: 'insideLeft' }}
+            label={{ 
+              value: graphData.y_label, 
+              angle: -90, 
+              position: 'insideLeft',
+              textAnchor: 'middle'
+            }}
+            tick={{ fontSize: 12 }}
+            width={60}
           />
           <Tooltip 
             labelFormatter={(value) => `Time: ${value}`}
             formatter={(value: any) => [value, 'Vibration']}
           />
-          <Legend />
+          <Legend 
+            verticalAlign="top"
+            height={36}
+            iconType="line"
+          />
           {renderAnomalyAreas(graphData.anomalies, chartData)}
           <Line 
             type="monotone" 
