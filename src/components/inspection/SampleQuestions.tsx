@@ -31,7 +31,6 @@ export const SampleQuestions = ({ onQuestionClick, isMinimized = false }: Sample
 
   return (
     <div className="mb-6">
-      <h3 className="text-lg font-semibold mb-4">Sample Questions</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {sampleQuestions.map((question, index) => (
           <Card 
