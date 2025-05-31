@@ -53,6 +53,10 @@ const sampleGraphData: GraphData = {
   ],
   anomalies: [
     {
+      start: "2024-07-14T00:00:00Z",
+      end: "2024-08-14T00:00:00Z"
+    },
+    {
       start: "2024-11-02T06:00:00Z",
       end: "2024-11-02T06:15:00Z"
     },
