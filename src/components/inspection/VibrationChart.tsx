@@ -52,11 +52,11 @@ const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
           key={`anomaly-${index}`}
           x1={chartData[startIndex]?.timestamp}
           x2={chartData[endIndex]?.timestamp}
-          fill="#ef4444"
-          fillOpacity={0.3}
-          stroke="#dc2626"
-          strokeWidth={1}
-          strokeOpacity={0.6}
+          fill="#dc2626"
+          fillOpacity={0.4}
+          stroke="#b91c1c"
+          strokeWidth={2}
+          strokeOpacity={0.8}
         />
       );
     } else {
@@ -66,11 +66,11 @@ const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
           key={`anomaly-${index}`}
           x1={anomalyPoints[0].timestamp}
           x2={anomalyPoints[anomalyPoints.length - 1].timestamp}
-          fill="#ef4444"
-          fillOpacity={0.3}
-          stroke="#dc2626"
-          strokeWidth={1}
-          strokeOpacity={0.6}
+          fill="#dc2626"
+          fillOpacity={0.4}
+          stroke="#b91c1c"
+          strokeWidth={2}
+          strokeOpacity={0.8}
         />
       );
     }
@@ -159,8 +159,8 @@ export const VibrationChart = ({ graphData }: VibrationChartProps) => {
             height={36}
             iconType="line"
           />
-          {renderAnomalyAreas(graphData.anomalies, chartData)}
           {renderSpecialMarkArea(chartData)}
+          {renderAnomalyAreas(graphData.anomalies, chartData)}
           <Line 
             type="monotone" 
             dataKey="value" 
