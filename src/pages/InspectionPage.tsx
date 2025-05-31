@@ -9,16 +9,35 @@ import { AnomaliesList } from '@/components/inspection/AnomaliesList';
 import { ChatPromptBar } from '@/components/inspection/ChatPromptBar';
 import { SampleQuestions } from '@/components/inspection/SampleQuestions';
 import { useInspectionData } from '@/hooks/useInspectionData';
+import { sendQuery, QueryResponse } from '@/services/apiService';
+import { toast } from '@/hooks/use-toast';
 
 const InspectionPage = () => {
   const [searchParams] = useSearchParams();
   const machineId = searchParams.get('machineId');
   const { graphData, isLoading } = useInspectionData(machineId);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isQueryLoading, setIsQueryLoading] = useState(false);
+  const [queryResponse, setQueryResponse] = useState<QueryResponse | null>(null);
 
-  const handleMessageSent = (message: string) => {
+  const handleMessageSent = async (message: string) => {
     console.log('Message sent:', message);
-    // Here you could integrate with your chat/query service
+    setIsQueryLoading(true);
+    
+    try {
+      const response = await sendQuery(message);
+      setQueryResponse(response);
+      console.log('Query response:', response);
+    } catch (error) {
+      console.error('Failed to send query:', error);
+      toast({
+        title: "Query Error",
+        description: "Failed to send query to the backend service.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsQueryLoading(false);
+    }
   };
 
   const handleTyping = (isTyping: boolean) => {
@@ -74,9 +93,27 @@ const InspectionPage = () => {
                   )}
                 </div>
 
+                {/* Query Response Section */}
+                {(queryResponse || isQueryLoading) && (
+                  <div className="bg-white rounded-lg shadow-sm border p-6 mt-6">
+                    <h3 className="text-lg font-semibold mb-4">AI Response</h3>
+                    {isQueryLoading ? (
+                      <div className="text-gray-500">Generating response...</div>
+                    ) : queryResponse ? (
+                      <div className="prose prose-sm max-w-none">
+                        {queryResponse.format === 'markdown' ? (
+                          <div dangerouslySetInnerHTML={{ __html: queryResponse.response }} />
+                        ) : (
+                          <p className="whitespace-pre-wrap">{queryResponse.response}</p>
+                        )}
+                      </div>
+                    ) : null}
+                  </div>
+                )}
+
                 <SampleQuestions 
                   onQuestionClick={handleQuestionClick} 
-                  isMinimized={isMinimized}
+                  isMinimized={isMinimized || !!queryResponse}
                 />
               </>
             ) : (
