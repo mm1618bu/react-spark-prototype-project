@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
@@ -57,10 +56,7 @@ const MachineHealthPage = () => {
 
   const handleInspectAnomaly = (machineId: string) => {
     console.log('Inspecting anomaly for machine:', machineId);
-    toast({
-      title: "Inspect Anomaly",
-      description: `Inspecting anomaly for machine ${machineId}`,
-    });
+    navigate(`/inspection?machineId=${machineId}`);
   };
 
   return (
