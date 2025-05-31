@@ -77,6 +77,42 @@ const renderAnomalyAreas = (anomalies: Anomaly[], chartData: any[]) => {
   });
 };
 
+const renderSpecialMarkArea = (chartData: any[]) => {
+  const startDate = new Date('2024-12-08T19:00:00Z');
+  const endDate = new Date('2024-12-13T19:00:00Z');
+  
+  // Find the closest data points to our target range
+  let startIndex = 0;
+  let endIndex = chartData.length - 1;
+  
+  chartData.forEach((point, idx) => {
+    const pointTime = new Date(point.fullTimestamp).getTime();
+    if (pointTime <= startDate.getTime()) {
+      startIndex = idx;
+    }
+    if (pointTime <= endDate.getTime()) {
+      endIndex = idx;
+    }
+  });
+  
+  // Ensure we have at least one point to highlight
+  if (startIndex === endIndex && startIndex < chartData.length - 1) {
+    endIndex = startIndex + 1;
+  }
+  
+  return (
+    <ReferenceArea
+      x1={chartData[startIndex]?.timestamp}
+      x2={chartData[endIndex]?.timestamp}
+      fill="#3b82f6"
+      fillOpacity={0.2}
+      stroke="#1d4ed8"
+      strokeWidth={2}
+      strokeOpacity={0.8}
+    />
+  );
+};
+
 export const VibrationChart = ({ graphData }: VibrationChartProps) => {
   const chartData = formatChartData(graphData.vibration_data);
 
@@ -124,6 +160,7 @@ export const VibrationChart = ({ graphData }: VibrationChartProps) => {
             iconType="line"
           />
           {renderAnomalyAreas(graphData.anomalies, chartData)}
+          {renderSpecialMarkArea(chartData)}
           <Line 
             type="monotone" 
             dataKey="value" 
