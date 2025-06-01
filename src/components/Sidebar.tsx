@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
@@ -34,10 +35,11 @@ export const Sidebar = () => {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="text-white hover:bg-sage-600"
+                className="text-white hover:bg-sage-600 relative"
                 onClick={() => navigate('/machine-health')}
               >
                 <Heart size={20} />
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">
