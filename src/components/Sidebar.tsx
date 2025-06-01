@@ -1,4 +1,5 @@
 
+
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
@@ -39,7 +40,7 @@ export const Sidebar = () => {
                 onClick={() => navigate('/machine-health')}
               >
                 <Heart size={20} />
-                <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-red-500 rounded-full border border-white shadow-sm"></div>
               </Button>
             </TooltipTrigger>
             <TooltipContent side="right">
@@ -95,3 +96,4 @@ export const Sidebar = () => {
     </div>
   );
 };
+
