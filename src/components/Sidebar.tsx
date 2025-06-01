@@ -1,7 +1,7 @@
 
 
 import React from 'react';
-import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
+import { FileText, Settings, Info, BookmarkIcon, Heart, Calendar } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useNavigate } from 'react-router-dom';
@@ -45,6 +45,24 @@ export const Sidebar = () => {
             </TooltipTrigger>
             <TooltipContent side="right">
               <p>Machine Health</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:bg-sage-600"
+                onClick={() => navigate('/scheduler')}
+              >
+                <Calendar size={20} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Maintenance Scheduler</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
