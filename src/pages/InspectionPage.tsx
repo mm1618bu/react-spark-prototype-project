@@ -4,7 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
 import { sendQuery } from '@/services/apiService';
@@ -40,6 +40,7 @@ const InspectionPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [isGraphExpanded, setIsGraphExpanded] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isQueryLoading, setIsQueryLoading] = useState(false);
   const { toast } = useToast();
@@ -97,6 +98,11 @@ const InspectionPage = () => {
     setMessages(prev => [...prev, { role: 'user', content: message }]);
     setIsQueryLoading(true);
     
+    // Minimize graph when chat starts
+    if (messages.length === 0) {
+      setIsGraphExpanded(false);
+    }
+    
     try {
       const response = await sendQuery(message);
       console.log('Query response:', response);
@@ -139,7 +145,11 @@ const InspectionPage = () => {
   };
 
   const handleTyping = (isTyping: boolean) => {
-    setIsMinimized(isTyping || messages.length > 0);
+    setIsMinimized(isTyping);
+  };
+
+  const toggleGraphExpanded = () => {
+    setIsGraphExpanded(!isGraphExpanded);
   };
 
   // Transform data for recharts
@@ -197,38 +207,56 @@ const InspectionPage = () => {
             <div className="space-y-6">
               <Card className="transition-all duration-500 ease-in-out transform-gpu">
                 <CardHeader 
-                  className={`transition-all duration-500 ease-in-out ${
-                    isMinimized ? 'pb-2 pt-4' : 'pb-4 pt-6'
+                  className={`transition-all duration-500 ease-in-out flex flex-row items-center justify-between ${
+                    !isGraphExpanded ? 'pb-2 pt-4' : 'pb-4 pt-6'
                   }`}
                 >
                   <CardTitle 
                     className={`transition-all duration-500 ease-in-out ${
-                      isMinimized ? 'text-lg' : 'text-2xl'
+                      !isGraphExpanded ? 'text-lg' : 'text-2xl'
                     }`}
                   >
                     {graphData.title}
                   </CardTitle>
+                  {messages.length > 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={toggleGraphExpanded}
+                      className="flex items-center gap-2"
+                    >
+                      {isGraphExpanded ? (
+                        <>
+                          Minimize <ChevronUp size={16} />
+                        </>
+                      ) : (
+                        <>
+                          Expand <ChevronDown size={16} />
+                        </>
+                      )}
+                    </Button>
+                  )}
                 </CardHeader>
                 <CardContent 
                   className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                    isMinimized ? 'pt-0 pb-4' : 'pt-0 pb-6'
+                    !isGraphExpanded ? 'pt-0 pb-4' : 'pt-0 pb-6'
                   }`}
                 >
                   <div 
                     className="w-full transition-all duration-500 ease-in-out" 
                     style={{ 
-                      height: isMinimized ? '150px' : '400px',
-                      opacity: isMinimized ? 0.7 : 1
+                      height: !isGraphExpanded ? '150px' : '400px',
+                      opacity: !isGraphExpanded ? 0.7 : 1
                     }}
                   >
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart 
                         data={chartData} 
                         margin={{ 
-                          top: isMinimized ? 10 : 20, 
-                          right: isMinimized ? 15 : 30, 
-                          left: isMinimized ? 30 : 60, 
-                          bottom: isMinimized ? 10 : 60 
+                          top: !isGraphExpanded ? 10 : 20, 
+                          right: !isGraphExpanded ? 15 : 30, 
+                          left: !isGraphExpanded ? 30 : 60, 
+                          bottom: !isGraphExpanded ? 10 : 60 
                         }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
@@ -242,7 +270,7 @@ const InspectionPage = () => {
                             const point = chartData[Math.floor(value)];
                             return point ? point.formattedTime : '';
                           }}
-                          tick={{ fontSize: isMinimized ? 10 : 12 }}
+                          tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
                         />
                         <YAxis 
                           domain={[yMin - yPadding, yMax + yPadding]}
@@ -250,15 +278,15 @@ const InspectionPage = () => {
                             value: graphData.y_label, 
                             angle: -90, 
                             position: 'insideLeft',
-                            style: { fontSize: isMinimized ? 10 : 12 }
+                            style: { fontSize: !isGraphExpanded ? 10 : 12 }
                           }}
-                          tick={{ fontSize: isMinimized ? 10 : 12 }}
+                          tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
                         />
                         <Line 
                           type="monotone" 
                           dataKey="value" 
                           stroke="#2563eb" 
-                          strokeWidth={isMinimized ? 1 : 2}
+                          strokeWidth={!isGraphExpanded ? 1 : 2}
                           dot={false}
                           connectNulls={false}
                         />
@@ -280,8 +308,8 @@ const InspectionPage = () => {
                                 x={startIndex} 
                                 stroke="#ef4444" 
                                 strokeDasharray="5 5"
-                                strokeWidth={isMinimized ? 1 : 2}
-                                label={!isMinimized ? { 
+                                strokeWidth={!isGraphExpanded ? 1 : 2}
+                                label={isGraphExpanded ? { 
                                   value: `Anomaly ${index + 1}`, 
                                   position: "top",
                                   style: { fill: '#ef4444' }
@@ -292,7 +320,7 @@ const InspectionPage = () => {
                                   x={endIndex} 
                                   stroke="#ef4444" 
                                   strokeDasharray="5 5"
-                                  strokeWidth={isMinimized ? 1 : 2}
+                                  strokeWidth={!isGraphExpanded ? 1 : 2}
                                 />
                               )}
                             </React.Fragment>
@@ -304,7 +332,7 @@ const InspectionPage = () => {
                   
                   <div 
                     className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                      isMinimized ? 'max-h-0 opacity-0 mt-0' : 'max-h-96 opacity-100 mt-6'
+                      !isGraphExpanded ? 'max-h-0 opacity-0 mt-0' : 'max-h-96 opacity-100 mt-6'
                     }`}
                   >
                     {graphData.anomalies && graphData.anomalies.length > 0 && (
@@ -324,11 +352,11 @@ const InspectionPage = () => {
                     )}
                   </div>
 
-                  {isMinimized && (
+                  {!isGraphExpanded && messages.length > 0 && (
                     <div 
                       className="text-sm text-gray-500 mt-2 transition-all duration-500 ease-in-out"
                     >
-                      Chart minimized - ask your question below
+                      Chart minimized - click "Expand" to view full details
                     </div>
                   )}
                 </CardContent>
