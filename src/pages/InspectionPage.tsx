@@ -37,26 +37,49 @@ const InspectionPage = () => {
   // Sample data for demonstration
   const sampleData: GraphData = {
     title: "Outlier detection for Greensand crane June-December 2024",
-    x_label: "time samples",
-    y_label: "vibration (mm/s)",
-    x_tick_labels: ["July", "August", "September", "October", "November", "December"],
+    x_label: "Time",
+    y_label: "Vibration (mm/s)",
+    x_tick_labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     vibration_data: [
       { timestamp: "2024-07-01T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-07-15T00:00:00Z", value: 2.1 },
-      { timestamp: "2024-08-01T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-07-05T00:00:00Z", value: 2.1 },
+      { timestamp: "2024-07-10T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-07-15T00:00:00Z", value: 2.2 },
+      { timestamp: "2024-07-20T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-07-25T00:00:00Z", value: 2.3 },
+      { timestamp: "2024-08-01T00:00:00Z", value: 2.6 },
+      { timestamp: "2024-08-05T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-08-10T00:00:00Z", value: 2.7 },
       { timestamp: "2024-08-15T00:00:00Z", value: 2.8 },
+      { timestamp: "2024-08-20T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-08-25T00:00:00Z", value: 2.6 },
       { timestamp: "2024-09-01T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-09-05T00:00:00Z", value: 2.3 },
+      { timestamp: "2024-09-10T00:00:00Z", value: 2.7 },
       { timestamp: "2024-09-15T00:00:00Z", value: 2.6 },
+      { timestamp: "2024-09-20T00:00:00Z", value: 2.8 },
+      { timestamp: "2024-09-25T00:00:00Z", value: 2.4 },
       { timestamp: "2024-10-01T00:00:00Z", value: 2.2 },
+      { timestamp: "2024-10-05T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-10-10T00:00:00Z", value: 2.3 },
       { timestamp: "2024-10-15T00:00:00Z", value: 2.9 },
+      { timestamp: "2024-10-20T00:00:00Z", value: 2.6 },
+      { timestamp: "2024-10-25T00:00:00Z", value: 2.4 },
       { timestamp: "2024-11-01T00:00:00Z", value: 3.1 },
       { timestamp: "2024-11-02T06:00:00Z", value: 4.5 },
       { timestamp: "2024-11-02T06:15:00Z", value: 4.8 },
+      { timestamp: "2024-11-05T00:00:00Z", value: 2.8 },
+      { timestamp: "2024-11-10T00:00:00Z", value: 2.6 },
       { timestamp: "2024-11-15T00:00:00Z", value: 2.7 },
+      { timestamp: "2024-11-20T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-11-25T00:00:00Z", value: 2.9 },
       { timestamp: "2024-12-01T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-12-05T00:00:00Z", value: 2.6 },
       { timestamp: "2024-12-10T01:30:00Z", value: 4.2 },
       { timestamp: "2024-12-10T02:00:00Z", value: 4.6 },
-      { timestamp: "2024-12-15T00:00:00Z", value: 2.3 }
+      { timestamp: "2024-12-15T00:00:00Z", value: 2.3 },
+      { timestamp: "2024-12-20T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-12-25T00:00:00Z", value: 2.4 }
     ],
     anomalies: [
       {
@@ -115,12 +138,19 @@ const InspectionPage = () => {
 
   // Transform data for recharts
   const displayData = graphData || sampleData;
-  const chartData = displayData?.vibration_data?.map((point, index) => ({
-    index,
-    timestamp: point.timestamp,
-    value: point.value,
-    formattedTime: new Date(point.timestamp).toLocaleDateString(),
-  })) || [];
+  const chartData = displayData?.vibration_data?.map((point, index) => {
+    const date = new Date(point.timestamp);
+    return {
+      index,
+      timestamp: point.timestamp,
+      value: point.value,
+      date: date.getTime(),
+      formattedTime: date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric' 
+      }),
+    };
+  }).sort((a, b) => a.date - b.date) || [];
 
   const chartConfig = {
     value: {
@@ -162,60 +192,86 @@ const InspectionPage = () => {
               <CardContent>
                 <div className="h-96 w-full">
                   <ChartContainer config={chartConfig}>
-                    <LineChart data={chartData}>
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="index"
-                        tickFormatter={(value) => {
-                          const tickIndex = Math.floor((value / chartData.length) * (displayData.x_tick_labels?.length || 1));
-                          return displayData.x_tick_labels?.[tickIndex] || '';
-                        }}
-                        label={{ value: displayData.x_label, position: 'insideBottom', offset: -5 }}
-                      />
-                      <YAxis 
-                        label={{ value: displayData.y_label, angle: -90, position: 'insideLeft' }}
-                      />
-                      <ChartTooltip 
-                        content={<ChartTooltipContent />}
-                        labelFormatter={(value) => {
-                          const point = chartData[value as number];
-                          return point ? `Time: ${point.formattedTime}` : '';
-                        }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="var(--color-value)" 
-                        strokeWidth={2}
-                        dot={false}
-                      />
-                      {/* Add reference lines for anomalies */}
-                      {displayData.anomalies?.map((anomaly, index) => {
-                        const startIndex = chartData.findIndex(point => 
-                          new Date(point.timestamp) >= new Date(anomaly.start)
-                        );
-                        const endIndex = chartData.findIndex(point => 
-                          new Date(point.timestamp) >= new Date(anomaly.end)
-                        );
-                        
-                        return (
-                          <React.Fragment key={index}>
-                            <ReferenceLine 
-                              x={startIndex} 
-                              stroke="#ef4444" 
-                              strokeDasharray="5 5"
-                              label={{ value: "Anomaly Start", position: "top" }}
-                            />
-                            <ReferenceLine 
-                              x={endIndex} 
-                              stroke="#ef4444" 
-                              strokeDasharray="5 5"
-                              label={{ value: "Anomaly End", position: "top" }}
-                            />
-                          </React.Fragment>
-                        );
-                      })}
-                    </LineChart>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="index"
+                          type="number"
+                          scale="linear"
+                          domain={['dataMin', 'dataMax']}
+                          tickFormatter={(value) => {
+                            const point = chartData[Math.floor(value)];
+                            return point ? point.formattedTime : '';
+                          }}
+                          label={{ 
+                            value: displayData.x_label, 
+                            position: 'insideBottom', 
+                            offset: -10 
+                          }}
+                        />
+                        <YAxis 
+                          domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                          label={{ 
+                            value: displayData.y_label, 
+                            angle: -90, 
+                            position: 'insideLeft' 
+                          }}
+                        />
+                        <ChartTooltip 
+                          content={<ChartTooltipContent />}
+                          labelFormatter={(value) => {
+                            const point = chartData[Math.floor(value as number)];
+                            return point ? `Time: ${point.formattedTime}` : '';
+                          }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="var(--color-value)" 
+                          strokeWidth={2}
+                          dot={{ r: 2 }}
+                          connectNulls={false}
+                        />
+                        {/* Add reference lines for anomalies */}
+                        {displayData.anomalies?.map((anomaly, index) => {
+                          const startTime = new Date(anomaly.start).getTime();
+                          const endTime = new Date(anomaly.end).getTime();
+                          const startIndex = chartData.findIndex(point => 
+                            new Date(point.timestamp).getTime() >= startTime
+                          );
+                          const endIndex = chartData.findIndex(point => 
+                            new Date(point.timestamp).getTime() >= endTime
+                          );
+                          
+                          if (startIndex === -1) return null;
+                          
+                          return (
+                            <React.Fragment key={index}>
+                              <ReferenceLine 
+                                x={startIndex} 
+                                stroke="#ef4444" 
+                                strokeDasharray="5 5"
+                                strokeWidth={2}
+                                label={{ 
+                                  value: `Anomaly ${index + 1}`, 
+                                  position: "topLeft",
+                                  style: { fill: '#ef4444' }
+                                }}
+                              />
+                              {endIndex !== -1 && endIndex !== startIndex && (
+                                <ReferenceLine 
+                                  x={endIndex} 
+                                  stroke="#ef4444" 
+                                  strokeDasharray="5 5"
+                                  strokeWidth={2}
+                                />
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </LineChart>
+                    </ResponsiveContainer>
                   </ChartContainer>
                 </div>
                 
