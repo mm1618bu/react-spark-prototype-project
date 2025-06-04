@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import ChatPage from "./pages/ChatPage";
 import SettingsPage from "./pages/SettingsPage";
+import PostgreSQLSetupPage from "./pages/PostgreSQLSetupPage";
 import MachineHealthPage from "./pages/MachineHealthPage";
 import InspectionPage from "./pages/InspectionPage";
 
@@ -23,6 +24,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/chat" element={<ChatPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/postgresql-setup" element={<PostgreSQLSetupPage />} />
           <Route path="/machine-health" element={<MachineHealthPage />} />
           <Route path="/inspection" element={<InspectionPage />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
