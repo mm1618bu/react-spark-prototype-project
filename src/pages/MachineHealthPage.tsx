@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -39,11 +38,6 @@ const MachineHealthPage = () => {
 
       const data = await response.json();
       setMachines(data.machines || []);
-      
-      toast({
-        title: "Success",
-        description: "Machine health data loaded successfully",
-      });
     } catch (error) {
       console.error('Error fetching machine data:', error);
       setError('Failed to load machine data. Please check your backend connection.');
