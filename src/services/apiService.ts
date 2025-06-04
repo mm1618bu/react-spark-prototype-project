@@ -14,17 +14,21 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
   console.log(`Source: ${source || 'unknown'}`);
   console.log(`Sending POST request to: ${API_URL}/query`);
 
+  const payload = { 
+    query,
+    source: source || 'unknown',
+    responseFormat: 'markdown' // Request markdown format from backend
+  };
+  
+  console.log('Request payload:', JSON.stringify(payload, null, 2));
+
   try {
     const response = await fetch(`${API_URL}/query`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ 
-        query,
-        source: source || 'unknown',
-        responseFormat: 'markdown' // Request markdown format from backend
-      }),
+      body: JSON.stringify(payload),
     });
 
     console.log(`Response status: ${response.status}`);
