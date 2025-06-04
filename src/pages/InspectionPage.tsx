@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -6,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { SearchBar } from '@/components/SearchBar';
 
 interface VibrationDataPoint {
   timestamp: string;
@@ -33,6 +33,8 @@ const InspectionPage = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const query = searchParams.get('q');
 
   const fetchGraphData = async () => {
     setIsLoading(true);
@@ -129,12 +131,12 @@ const InspectionPage = () => {
               <Button onClick={fetchGraphData}>Try Again</Button>
             </div>
           ) : graphData ? (
-            <Card>
-              <CardHeader>
-                <CardTitle>{graphData.title}</CardTitle>
+            <Card className={`mb-8 transition-all duration-300 ${query ? 'transform scale-95' : ''}`}>
+              <CardHeader className={query ? 'pb-2' : ''}>
+                <CardTitle className={query ? 'text-lg' : ''}>{graphData.title}</CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="w-full" style={{ height: '400px' }}>
+              <CardContent className={query ? 'pt-2' : ''}>
+                <div className="w-full" style={{ height: query ? '200px' : '400px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
                       data={chartData} 
@@ -208,7 +210,7 @@ const InspectionPage = () => {
                   </ResponsiveContainer>
                 </div>
                 
-                {graphData.anomalies && graphData.anomalies.length > 0 && (
+                {graphData.anomalies && graphData.anomalies.length > 0 && !query && (
                   <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
                     <div className="grid gap-2">
@@ -230,6 +232,11 @@ const InspectionPage = () => {
               <p className="text-gray-500">No data available. Please try refreshing.</p>
             </div>
           )}
+
+          {/* Search Bar */}
+          <div className="w-full max-w-xl mx-auto">
+            <SearchBar />
+          </div>
         </div>
       </div>
     </div>
