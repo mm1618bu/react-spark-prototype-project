@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -5,9 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { ArticleCard } from '@/components/ArticleCard';
-import { SearchBar } from '@/components/SearchBar';
+import { useNavigate } from 'react-router-dom';
 
 interface VibrationDataPoint {
   timestamp: string;
@@ -34,8 +33,6 @@ const InspectionPage = () => {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const query = searchParams.get('q');
 
   const fetchGraphData = async () => {
     setIsLoading(true);
@@ -101,22 +98,6 @@ const InspectionPage = () => {
   const yMax = Math.max(...yValues);
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
 
-  const featuredArticles = [
-    {
-      title: 'How Data Fuels The Move To Smart Manufacturing',
-      description: 'Digital transformation is critical to ensuring a positive outcome in manufacturing and design. Here are four ways data and AI get the job done.'
-    },
-    {
-      title: 'How To Handle Breakdown During Production'
-    },
-    {
-      title: 'Reduce Downtime For Meeting High Demand'
-    },
-    {
-      title: 'Leading With Innovation In Smart Factories'
-    }
-  ];
-
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -148,12 +129,12 @@ const InspectionPage = () => {
               <Button onClick={fetchGraphData}>Try Again</Button>
             </div>
           ) : graphData ? (
-            <Card className="mb-8">
+            <Card>
               <CardHeader>
                 <CardTitle>{graphData.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="w-full" style={{ height: query ? '200px' : '400px' }}>
+                <div className="w-full" style={{ height: '400px' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart 
                       data={chartData} 
@@ -249,23 +230,6 @@ const InspectionPage = () => {
               <p className="text-gray-500">No data available. Please try refreshing.</p>
             </div>
           )}
-
-          {/* Article Cards Section */}
-          <div className="mb-8">
-            <div className="grid grid-cols-2 gap-4 mb-8">
-              {featuredArticles.map((article, index) => (
-                <ArticleCard 
-                  key={index}
-                  title={article.title}
-                  description={article.description}
-                />
-              ))}
-            </div>
-            
-            <div className="w-full max-w-xl mx-auto">
-              <SearchBar />
-            </div>
-          </div>
         </div>
       </div>
     </div>
