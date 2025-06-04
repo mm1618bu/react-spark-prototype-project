@@ -141,108 +141,112 @@ const InspectionPage = () => {
               <Button onClick={fetchGraphData}>Try Again</Button>
             </div>
           ) : graphData ? (
-            <Card className={`mb-8 transition-all duration-300 ${isMinimized ? 'transform scale-95' : ''}`}>
-              <CardHeader className={isMinimized ? 'pb-2' : ''}>
-                <CardTitle className={isMinimized ? 'text-lg' : ''}>{graphData.title}</CardTitle>
-              </CardHeader>
-              <CardContent className={isMinimized ? 'pt-2' : ''}>
-                <div className="w-full" style={{ height: isMinimized ? '200px' : '400px' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <LineChart 
-                      data={chartData} 
-                      margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
-                    >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis 
-                        dataKey="index"
-                        type="number"
-                        scale="linear"
-                        domain={[0, chartData.length - 1]}
-                        ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
-                        tickFormatter={(value) => {
-                          const point = chartData[Math.floor(value)];
-                          return point ? point.formattedTime : '';
-                        }}
-                      />
-                      <YAxis 
-                        domain={[yMin - yPadding, yMax + yPadding]}
-                        label={{ 
-                          value: graphData.y_label, 
-                          angle: -90, 
-                          position: 'insideLeft' 
-                        }}
-                      />
-                      <Line 
-                        type="monotone" 
-                        dataKey="value" 
-                        stroke="#2563eb" 
-                        strokeWidth={2}
-                        dot={false}
-                        connectNulls={false}
-                      />
-                      {graphData.anomalies?.map((anomaly, index) => {
-                        const startTime = new Date(anomaly.start).getTime();
-                        const endTime = new Date(anomaly.end).getTime();
-                        const startIndex = chartData.findIndex(point => 
-                          new Date(point.timestamp).getTime() >= startTime
-                        );
-                        const endIndex = chartData.findIndex(point => 
-                          new Date(point.timestamp).getTime() >= endTime
-                        );
-                        
-                        if (startIndex === -1) return null;
-                        
-                        return (
-                          <React.Fragment key={index}>
-                            <ReferenceLine 
-                              x={startIndex} 
-                              stroke="#ef4444" 
-                              strokeDasharray="5 5"
-                              strokeWidth={2}
-                              label={{ 
-                                value: `Anomaly ${index + 1}`, 
-                                position: "top",
-                                style: { fill: '#ef4444' }
-                              }}
-                            />
-                            {endIndex !== -1 && endIndex !== startIndex && (
+            <div className="space-y-0">
+              <Card className={`transition-all duration-300 ${isMinimized ? 'transform scale-95' : ''}`}>
+                <CardHeader className={isMinimized ? 'pb-2' : ''}>
+                  <CardTitle className={isMinimized ? 'text-lg' : ''}>{graphData.title}</CardTitle>
+                </CardHeader>
+                <CardContent className={isMinimized ? 'pt-2' : ''}>
+                  <div className="w-full" style={{ height: isMinimized ? '200px' : '400px' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart 
+                        data={chartData} 
+                        margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
+                      >
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis 
+                          dataKey="index"
+                          type="number"
+                          scale="linear"
+                          domain={[0, chartData.length - 1]}
+                          ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
+                          tickFormatter={(value) => {
+                            const point = chartData[Math.floor(value)];
+                            return point ? point.formattedTime : '';
+                          }}
+                        />
+                        <YAxis 
+                          domain={[yMin - yPadding, yMax + yPadding]}
+                          label={{ 
+                            value: graphData.y_label, 
+                            angle: -90, 
+                            position: 'insideLeft' 
+                          }}
+                        />
+                        <Line 
+                          type="monotone" 
+                          dataKey="value" 
+                          stroke="#2563eb" 
+                          strokeWidth={2}
+                          dot={false}
+                          connectNulls={false}
+                        />
+                        {graphData.anomalies?.map((anomaly, index) => {
+                          const startTime = new Date(anomaly.start).getTime();
+                          const endTime = new Date(anomaly.end).getTime();
+                          const startIndex = chartData.findIndex(point => 
+                            new Date(point.timestamp).getTime() >= startTime
+                          );
+                          const endIndex = chartData.findIndex(point => 
+                            new Date(point.timestamp).getTime() >= endTime
+                          );
+                          
+                          if (startIndex === -1) return null;
+                          
+                          return (
+                            <React.Fragment key={index}>
                               <ReferenceLine 
-                                x={endIndex} 
+                                x={startIndex} 
                                 stroke="#ef4444" 
                                 strokeDasharray="5 5"
                                 strokeWidth={2}
+                                label={{ 
+                                  value: `Anomaly ${index + 1}`, 
+                                  position: "top",
+                                  style: { fill: '#ef4444' }
+                                }}
                               />
-                            )}
-                          </React.Fragment>
-                        );
-                      })}
-                    </LineChart>
-                  </ResponsiveContainer>
-                </div>
-                
-                {graphData.anomalies && graphData.anomalies.length > 0 && !isMinimized && (
-                  <div className="mt-6">
-                    <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
-                    <div className="grid gap-2">
-                      {graphData.anomalies.map((anomaly, index) => (
-                        <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
-                          <p className="text-sm">
-                            <span className="font-medium">Anomaly {index + 1}:</span>{' '}
-                            {new Date(anomaly.start).toLocaleString()} - {new Date(anomaly.end).toLocaleString()}
-                          </p>
-                        </div>
-                      ))}
+                              {endIndex !== -1 && endIndex !== startIndex && (
+                                <ReferenceLine 
+                                  x={endIndex} 
+                                  stroke="#ef4444" 
+                                  strokeDasharray="5 5"
+                                  strokeWidth={2}
+                                />
+                              )}
+                            </React.Fragment>
+                          );
+                        })}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {graphData.anomalies && graphData.anomalies.length > 0 && !isMinimized && (
+                    <div className="mt-6">
+                      <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
+                      <div className="grid gap-2">
+                        {graphData.anomalies.map((anomaly, index) => (
+                          <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
+                            <p className="text-sm">
+                              <span className="font-medium">Anomaly {index + 1}:</span>{' '}
+                              {new Date(anomaly.start).toLocaleString()} - {new Date(anomaly.end).toLocaleString()}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {isMinimized && (
-                  <div className="text-sm text-gray-500 mt-2">
-                    Chart minimized - ask your question below
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  {isMinimized && (
+                    <div className="text-sm text-gray-500 mt-2">
+                      Chart minimized - ask your question below
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+              
+              <ChatPromptBar onMessageSent={handleMessageSent} onTyping={handleTyping} />
+            </div>
           ) : (
             <div className="text-center py-8">
               <p className="text-gray-500">No data available. Please try refreshing.</p>
@@ -250,8 +254,6 @@ const InspectionPage = () => {
           )}
         </div>
       </div>
-      
-      <ChatPromptBar onMessageSent={handleMessageSent} onTyping={handleTyping} />
     </div>
   );
 };
