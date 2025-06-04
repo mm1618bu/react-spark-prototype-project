@@ -147,7 +147,7 @@ const InspectionPage = () => {
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart 
                         data={chartData} 
-                        margin={{ top: 20, right: 30, left: 60, bottom: 80 }}
+                        margin={{ top: 20, right: 30, left: 60, bottom: 20 }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
@@ -160,11 +160,9 @@ const InspectionPage = () => {
                             const point = chartData[Math.floor(value)];
                             return point ? point.formattedTime : '';
                           }}
-                          label={{ 
-                            value: graphData.x_label, 
-                            position: 'insideBottom', 
-                            offset: -10 
-                          }}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12 }}
                         />
                         <YAxis 
                           domain={[yMin - yPadding, yMax + yPadding]}
@@ -173,6 +171,9 @@ const InspectionPage = () => {
                             angle: -90, 
                             position: 'insideLeft' 
                           }}
+                          axisLine={false}
+                          tickLine={false}
+                          tick={{ fontSize: 12 }}
                         />
                         <ChartTooltip 
                           content={<ChartTooltipContent />}
