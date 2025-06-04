@@ -94,7 +94,7 @@ const InspectionPage = () => {
   };
 
   const handleMessageSent = async (message: string) => {
-    console.log('Message sent:', message);
+    console.log('Message sent from inspection page:', message);
     
     // Add user message immediately
     setMessages(prev => [...prev, { role: 'user', content: message }]);
@@ -107,7 +107,7 @@ const InspectionPage = () => {
     }
     
     try {
-      const response = await sendQuery(message);
+      const response = await sendQuery(message, 'inspection-page');
       console.log('Query response:', response);
       
       // Add system response
@@ -176,8 +176,8 @@ const InspectionPage = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col bg-gray-50">
-        <ScrollArea className="flex-1">
+      <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
+        <div className="flex-1 overflow-y-auto">
           <div className="p-8">
             <div className="max-w-6xl mx-auto">
               <div className="flex items-center gap-4 mb-8">
@@ -400,11 +400,15 @@ const InspectionPage = () => {
               )}
             </div>
           </div>
-        </ScrollArea>
+        </div>
         
         {/* Fixed chat bar at bottom */}
-        <div className="border-t bg-white p-4">
-          <ChatPromptBar onMessageSent={handleMessageSent} onTyping={handleTyping} />
+        <div className="border-t bg-white p-4 flex-shrink-0">
+          <ChatPromptBar 
+            onMessageSent={handleMessageSent} 
+            onTyping={handleTyping} 
+            source="inspection-page"
+          />
         </div>
       </div>
     </div>

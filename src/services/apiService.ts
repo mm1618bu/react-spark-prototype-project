@@ -9,8 +9,9 @@ export interface QueryResponse {
   format?: 'markdown' | 'text';
 }
 
-export async function sendQuery(query: string): Promise<QueryResponse> {
+export async function sendQuery(query: string, source?: string): Promise<QueryResponse> {
   console.log(`sendQuery called with query: ${query}`);
+  console.log(`Source: ${source || 'unknown'}`);
   console.log(`Sending POST request to: ${API_URL}/query`);
 
   try {
@@ -21,6 +22,7 @@ export async function sendQuery(query: string): Promise<QueryResponse> {
       },
       body: JSON.stringify({ 
         query,
+        source: source || 'unknown',
         responseFormat: 'markdown' // Request markdown format from backend
       }),
     });

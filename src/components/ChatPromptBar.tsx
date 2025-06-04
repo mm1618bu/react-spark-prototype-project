@@ -7,9 +7,10 @@ import { ArrowRight } from 'lucide-react';
 interface ChatPromptBarProps {
   onMessageSent: (message: string) => void;
   onTyping: (isTyping: boolean) => void;
+  source?: string;
 }
 
-export const ChatPromptBar = ({ onMessageSent, onTyping }: ChatPromptBarProps) => {
+export const ChatPromptBar = ({ onMessageSent, onTyping, source = 'chat' }: ChatPromptBarProps) => {
   const [input, setInput] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -22,6 +23,7 @@ export const ChatPromptBar = ({ onMessageSent, onTyping }: ChatPromptBarProps) =
     e.preventDefault();
     if (!input.trim()) return;
     
+    console.log(`Message sent from source: ${source}`);
     onMessageSent(input.trim());
     setInput('');
     onTyping(false);

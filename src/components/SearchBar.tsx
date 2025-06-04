@@ -18,8 +18,8 @@ export const SearchBar = () => {
     
     setIsLoading(true);
     try {
-      // First, try to send the query to the backend
-      await sendQuery(query);
+      // First, try to send the query to the backend with source identifier
+      await sendQuery(query, 'discover-page');
       
       // If successful, navigate to the chat page with the query
       navigate(`/chat?q=${encodeURIComponent(query)}`);

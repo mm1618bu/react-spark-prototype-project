@@ -39,7 +39,7 @@ const ChatPage = () => {
   const handleQueryBackend = async (query: string) => {
     setIsLoading(true);
     try {
-      const response = await sendQuery(query);
+      const response = await sendQuery(query, 'chat-page');
       
       setMessages(prev => [
         ...prev, 
