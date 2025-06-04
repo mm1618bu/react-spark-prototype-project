@@ -8,6 +8,7 @@ import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
 import { sendQuery } from '@/services/apiService';
+import ReactMarkdown from 'react-markdown';
 
 interface VibrationDataPoint {
   timestamp: string;
@@ -28,11 +29,19 @@ interface GraphData {
   anomalies: Anomaly[];
 }
 
+interface Message {
+  role: 'user' | 'system';
+  content: string;
+  format?: 'markdown' | 'text';
+}
+
 const InspectionPage = () => {
   const [graphData, setGraphData] = useState<GraphData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [isQueryLoading, setIsQueryLoading] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -83,9 +92,24 @@ const InspectionPage = () => {
 
   const handleMessageSent = async (message: string) => {
     console.log('Message sent:', message);
+    
+    // Add user message immediately
+    setMessages(prev => [...prev, { role: 'user', content: message }]);
+    setIsQueryLoading(true);
+    
     try {
       const response = await sendQuery(message);
       console.log('Query response:', response);
+      
+      // Add system response
+      setMessages(prev => [
+        ...prev, 
+        { 
+          role: 'system', 
+          content: response.response || "I'm sorry, I couldn't process that request.",
+          format: response.format || 'markdown'
+        }
+      ]);
       
       toast({
         title: "Query Sent",
@@ -93,16 +117,29 @@ const InspectionPage = () => {
       });
     } catch (error) {
       console.error('Failed to send query:', error);
+      
+      // Add error message to chat
+      setMessages(prev => [
+        ...prev, 
+        { 
+          role: 'system', 
+          content: `I couldn't process your question about "${message}". This is a simulated response as the backend is unavailable.`,
+          format: 'markdown'
+        }
+      ]);
+      
       toast({
         title: "Query Failed",
-        description: "Could not process your question. Please try again.",
+        description: "Could not process your question. Using simulated response.",
         variant: "destructive",
       });
+    } finally {
+      setIsQueryLoading(false);
     }
   };
 
   const handleTyping = (isTyping: boolean) => {
-    setIsMinimized(isTyping);
+    setIsMinimized(isTyping || messages.length > 0);
   };
 
   // Transform data for recharts
@@ -296,6 +333,35 @@ const InspectionPage = () => {
                   )}
                 </CardContent>
               </Card>
+              
+              {/* Chat messages section */}
+              {messages.length > 0 && (
+                <div className="space-y-4 max-w-4xl mx-auto">
+                  {messages.map((message, index) => (
+                    <div 
+                      key={index} 
+                      className={`p-4 rounded-lg ${
+                        message.role === 'user' 
+                          ? 'bg-sage-100 ml-12' 
+                          : 'bg-white border shadow-sm mr-12'
+                      }`}
+                    >
+                      {message.role === 'system' && message.format === 'markdown' ? (
+                        <div className="prose prose-sm max-w-none">
+                          <ReactMarkdown>{message.content}</ReactMarkdown>
+                        </div>
+                      ) : (
+                        <p>{message.content}</p>
+                      )}
+                    </div>
+                  ))}
+                  {isQueryLoading && (
+                    <div className="bg-white border shadow-sm p-4 rounded-lg mr-12">
+                      <p className="text-gray-500">Thinking...</p>
+                    </div>
+                  )}
+                </div>
+              )}
               
               <ChatPromptBar onMessageSent={handleMessageSent} onTyping={handleTyping} />
             </div>
