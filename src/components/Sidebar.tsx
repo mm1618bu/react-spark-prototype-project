@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon } from 'lucide-react';
 import { Button } from './ui/button';
@@ -12,7 +13,7 @@ export const Sidebar = () => {
   };
 
   const handleLogoClick = () => {
-    navigate('/chat');
+    navigate('/');
   };
 
   return (
