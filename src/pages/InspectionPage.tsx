@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -8,6 +7,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Refe
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
+import { sendQuery } from '@/services/apiService';
 
 interface VibrationDataPoint {
   timestamp: string;
@@ -81,9 +81,24 @@ const InspectionPage = () => {
     navigate('/machine-health');
   };
 
-  const handleMessageSent = (message: string) => {
+  const handleMessageSent = async (message: string) => {
     console.log('Message sent:', message);
-    // Here you could integrate with your chat/query service
+    try {
+      const response = await sendQuery(message);
+      console.log('Query response:', response);
+      
+      toast({
+        title: "Query Sent",
+        description: "Your question has been processed successfully",
+      });
+    } catch (error) {
+      console.error('Failed to send query:', error);
+      toast({
+        title: "Query Failed",
+        description: "Could not process your question. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleTyping = (isTyping: boolean) => {
