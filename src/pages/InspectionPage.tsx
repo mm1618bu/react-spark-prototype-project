@@ -107,7 +107,7 @@ const InspectionPage = () => {
     }
     
     try {
-      const response = await sendQuery(message, 'inspection-page');
+      const response = await sendQuery(message, 'anomaly');
       console.log('Query response:', response);
       
       // Add system response
@@ -407,7 +407,7 @@ const InspectionPage = () => {
           <ChatPromptBar 
             onMessageSent={handleMessageSent} 
             onTyping={handleTyping} 
-            source="inspection-page"
+            source="anomaly"
           />
         </div>
       </div>
