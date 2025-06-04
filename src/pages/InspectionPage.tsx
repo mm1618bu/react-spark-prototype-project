@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -141,17 +142,42 @@ const InspectionPage = () => {
               <Button onClick={fetchGraphData}>Try Again</Button>
             </div>
           ) : graphData ? (
-            <div className="space-y-0">
-              <Card className={`transition-all duration-300 ${isMinimized ? 'transform scale-95' : ''}`}>
-                <CardHeader className={isMinimized ? 'pb-2' : ''}>
-                  <CardTitle className={isMinimized ? 'text-lg' : ''}>{graphData.title}</CardTitle>
+            <div className="space-y-6">
+              <Card className="transition-all duration-500 ease-in-out transform-gpu">
+                <CardHeader 
+                  className={`transition-all duration-500 ease-in-out ${
+                    isMinimized ? 'pb-2 pt-4' : 'pb-4 pt-6'
+                  }`}
+                >
+                  <CardTitle 
+                    className={`transition-all duration-500 ease-in-out ${
+                      isMinimized ? 'text-lg' : 'text-2xl'
+                    }`}
+                  >
+                    {graphData.title}
+                  </CardTitle>
                 </CardHeader>
-                <CardContent className={isMinimized ? 'pt-2' : ''}>
-                  <div className="w-full" style={{ height: isMinimized ? '200px' : '400px' }}>
+                <CardContent 
+                  className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                    isMinimized ? 'pt-0 pb-4' : 'pt-0 pb-6'
+                  }`}
+                >
+                  <div 
+                    className="w-full transition-all duration-500 ease-in-out" 
+                    style={{ 
+                      height: isMinimized ? '150px' : '400px',
+                      opacity: isMinimized ? 0.7 : 1
+                    }}
+                  >
                     <ResponsiveContainer width="100%" height="100%">
                       <LineChart 
                         data={chartData} 
-                        margin={{ top: 20, right: 30, left: 60, bottom: 60 }}
+                        margin={{ 
+                          top: isMinimized ? 10 : 20, 
+                          right: isMinimized ? 15 : 30, 
+                          left: isMinimized ? 30 : 60, 
+                          bottom: isMinimized ? 10 : 60 
+                        }}
                       >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
@@ -164,20 +190,23 @@ const InspectionPage = () => {
                             const point = chartData[Math.floor(value)];
                             return point ? point.formattedTime : '';
                           }}
+                          tick={{ fontSize: isMinimized ? 10 : 12 }}
                         />
                         <YAxis 
                           domain={[yMin - yPadding, yMax + yPadding]}
                           label={{ 
                             value: graphData.y_label, 
                             angle: -90, 
-                            position: 'insideLeft' 
+                            position: 'insideLeft',
+                            style: { fontSize: isMinimized ? 10 : 12 }
                           }}
+                          tick={{ fontSize: isMinimized ? 10 : 12 }}
                         />
                         <Line 
                           type="monotone" 
                           dataKey="value" 
                           stroke="#2563eb" 
-                          strokeWidth={2}
+                          strokeWidth={isMinimized ? 1 : 2}
                           dot={false}
                           connectNulls={false}
                         />
@@ -199,19 +228,19 @@ const InspectionPage = () => {
                                 x={startIndex} 
                                 stroke="#ef4444" 
                                 strokeDasharray="5 5"
-                                strokeWidth={2}
-                                label={{ 
+                                strokeWidth={isMinimized ? 1 : 2}
+                                label={!isMinimized ? { 
                                   value: `Anomaly ${index + 1}`, 
                                   position: "top",
                                   style: { fill: '#ef4444' }
-                                }}
+                                } : undefined}
                               />
                               {endIndex !== -1 && endIndex !== startIndex && (
                                 <ReferenceLine 
                                   x={endIndex} 
                                   stroke="#ef4444" 
                                   strokeDasharray="5 5"
-                                  strokeWidth={2}
+                                  strokeWidth={isMinimized ? 1 : 2}
                                 />
                               )}
                             </React.Fragment>
@@ -221,24 +250,32 @@ const InspectionPage = () => {
                     </ResponsiveContainer>
                   </div>
                   
-                  {graphData.anomalies && graphData.anomalies.length > 0 && !isMinimized && (
-                    <div className="mt-6">
-                      <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
-                      <div className="grid gap-2">
-                        {graphData.anomalies.map((anomaly, index) => (
-                          <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
-                            <p className="text-sm">
-                              <span className="font-medium">Anomaly {index + 1}:</span>{' '}
-                              {new Date(anomaly.start).toLocaleString()} - {new Date(anomaly.end).toLocaleString()}
-                            </p>
-                          </div>
-                        ))}
+                  <div 
+                    className={`transition-all duration-500 ease-in-out overflow-hidden ${
+                      isMinimized ? 'max-h-0 opacity-0 mt-0' : 'max-h-96 opacity-100 mt-6'
+                    }`}
+                  >
+                    {graphData.anomalies && graphData.anomalies.length > 0 && (
+                      <div>
+                        <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
+                        <div className="grid gap-2">
+                          {graphData.anomalies.map((anomaly, index) => (
+                            <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
+                              <p className="text-sm">
+                                <span className="font-medium">Anomaly {index + 1}:</span>{' '}
+                                {new Date(anomaly.start).toLocaleString()} - {new Date(anomaly.end).toLocaleString()}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    )}
+                  </div>
 
                   {isMinimized && (
-                    <div className="text-sm text-gray-500 mt-2">
+                    <div 
+                      className="text-sm text-gray-500 mt-2 transition-all duration-500 ease-in-out"
+                    >
                       Chart minimized - ask your question below
                     </div>
                   )}
