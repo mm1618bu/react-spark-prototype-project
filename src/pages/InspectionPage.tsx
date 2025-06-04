@@ -120,10 +120,7 @@ const InspectionPage = () => {
         }
       ]);
       
-      toast({
-        title: "Query Sent",
-        description: "Your question has been processed successfully",
-      });
+      // Removed the success toast notification
     } catch (error) {
       console.error('Failed to send query:', error);
       
