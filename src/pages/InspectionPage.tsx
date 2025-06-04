@@ -34,6 +34,42 @@ const InspectionPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Sample data for demonstration
+  const sampleData: GraphData = {
+    title: "Outlier detection for Greensand crane June-December 2024",
+    x_label: "time samples",
+    y_label: "vibration (mm/s)",
+    x_tick_labels: ["July", "August", "September", "October", "November", "December"],
+    vibration_data: [
+      { timestamp: "2024-07-01T00:00:00Z", value: 2.3 },
+      { timestamp: "2024-07-15T00:00:00Z", value: 2.1 },
+      { timestamp: "2024-08-01T00:00:00Z", value: 2.5 },
+      { timestamp: "2024-08-15T00:00:00Z", value: 2.8 },
+      { timestamp: "2024-09-01T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-09-15T00:00:00Z", value: 2.6 },
+      { timestamp: "2024-10-01T00:00:00Z", value: 2.2 },
+      { timestamp: "2024-10-15T00:00:00Z", value: 2.9 },
+      { timestamp: "2024-11-01T00:00:00Z", value: 3.1 },
+      { timestamp: "2024-11-02T06:00:00Z", value: 4.5 },
+      { timestamp: "2024-11-02T06:15:00Z", value: 4.8 },
+      { timestamp: "2024-11-15T00:00:00Z", value: 2.7 },
+      { timestamp: "2024-12-01T00:00:00Z", value: 2.4 },
+      { timestamp: "2024-12-10T01:30:00Z", value: 4.2 },
+      { timestamp: "2024-12-10T02:00:00Z", value: 4.6 },
+      { timestamp: "2024-12-15T00:00:00Z", value: 2.3 }
+    ],
+    anomalies: [
+      {
+        start: "2024-11-02T06:00:00Z",
+        end: "2024-11-02T06:15:00Z"
+      },
+      {
+        start: "2024-12-10T01:30:00Z",
+        end: "2024-12-10T02:00:00Z"
+      }
+    ]
+  };
+
   const fetchGraphData = async () => {
     setIsLoading(true);
     try {
@@ -57,9 +93,11 @@ const InspectionPage = () => {
       });
     } catch (error) {
       console.error('Error fetching graph data:', error);
+      // Use sample data when API fails
+      setGraphData(sampleData);
       toast({
-        title: "Error",
-        description: "Failed to fetch graph data",
+        title: "Using Sample Data",
+        description: "Could not connect to backend, showing sample data",
         variant: "destructive",
       });
     } finally {
@@ -76,7 +114,8 @@ const InspectionPage = () => {
   };
 
   // Transform data for recharts
-  const chartData = graphData?.vibration_data?.map((point, index) => ({
+  const displayData = graphData || sampleData;
+  const chartData = displayData?.vibration_data?.map((point, index) => ({
     index,
     timestamp: point.timestamp,
     value: point.value,
@@ -85,7 +124,7 @@ const InspectionPage = () => {
 
   const chartConfig = {
     value: {
-      label: graphData?.y_label || "Vibration",
+      label: displayData?.y_label || "Vibration",
       color: "#2563eb",
     },
   };
@@ -115,10 +154,10 @@ const InspectionPage = () => {
             <div className="text-center py-8">
               <p className="text-gray-500">Loading graph data...</p>
             </div>
-          ) : graphData ? (
+          ) : (
             <Card>
               <CardHeader>
-                <CardTitle>{graphData.title}</CardTitle>
+                <CardTitle>{displayData.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-96 w-full">
@@ -128,13 +167,13 @@ const InspectionPage = () => {
                       <XAxis 
                         dataKey="index"
                         tickFormatter={(value) => {
-                          const tickIndex = Math.floor((value / chartData.length) * (graphData.x_tick_labels?.length || 1));
-                          return graphData.x_tick_labels?.[tickIndex] || '';
+                          const tickIndex = Math.floor((value / chartData.length) * (displayData.x_tick_labels?.length || 1));
+                          return displayData.x_tick_labels?.[tickIndex] || '';
                         }}
-                        label={{ value: graphData.x_label, position: 'insideBottom', offset: -5 }}
+                        label={{ value: displayData.x_label, position: 'insideBottom', offset: -5 }}
                       />
                       <YAxis 
-                        label={{ value: graphData.y_label, angle: -90, position: 'insideLeft' }}
+                        label={{ value: displayData.y_label, angle: -90, position: 'insideLeft' }}
                       />
                       <ChartTooltip 
                         content={<ChartTooltipContent />}
@@ -151,7 +190,7 @@ const InspectionPage = () => {
                         dot={false}
                       />
                       {/* Add reference lines for anomalies */}
-                      {graphData.anomalies?.map((anomaly, index) => {
+                      {displayData.anomalies?.map((anomaly, index) => {
                         const startIndex = chartData.findIndex(point => 
                           new Date(point.timestamp) >= new Date(anomaly.start)
                         );
@@ -181,11 +220,11 @@ const InspectionPage = () => {
                 </div>
                 
                 {/* Anomaly Summary */}
-                {graphData.anomalies && graphData.anomalies.length > 0 && (
+                {displayData.anomalies && displayData.anomalies.length > 0 && (
                   <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
                     <div className="grid gap-2">
-                      {graphData.anomalies.map((anomaly, index) => (
+                      {displayData.anomalies.map((anomaly, index) => (
                         <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
                           <p className="text-sm">
                             <span className="font-medium">Anomaly {index + 1}:</span>{' '}
@@ -198,10 +237,6 @@ const InspectionPage = () => {
                 )}
               </CardContent>
             </Card>
-          ) : (
-            <div className="text-center py-8">
-              <p className="text-gray-500">No graph data available</p>
-            </div>
           )}
         </div>
       </div>
