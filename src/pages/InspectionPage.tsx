@@ -43,6 +43,7 @@ const InspectionPage = () => {
   const [isGraphExpanded, setIsGraphExpanded] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isQueryLoading, setIsQueryLoading] = useState(false);
+  const [isChatMode, setIsChatMode] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -98,8 +99,9 @@ const InspectionPage = () => {
     setMessages(prev => [...prev, { role: 'user', content: message }]);
     setIsQueryLoading(true);
     
-    // Minimize graph when chat starts
-    if (messages.length === 0) {
+    // Enter chat mode and minimize graph on first message
+    if (!isChatMode) {
+      setIsChatMode(true);
       setIsGraphExpanded(false);
     }
     
@@ -218,7 +220,7 @@ const InspectionPage = () => {
                   >
                     {graphData.title}
                   </CardTitle>
-                  {messages.length > 0 && (
+                  {isChatMode && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -352,7 +354,7 @@ const InspectionPage = () => {
                     )}
                   </div>
 
-                  {!isGraphExpanded && messages.length > 0 && (
+                  {!isGraphExpanded && isChatMode && (
                     <div 
                       className="text-sm text-gray-500 mt-2 transition-all duration-500 ease-in-out"
                     >
