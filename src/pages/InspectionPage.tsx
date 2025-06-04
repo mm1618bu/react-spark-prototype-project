@@ -100,6 +100,12 @@ const InspectionPage = () => {
     },
   };
 
+  // Calculate proper domain for Y-axis
+  const yValues = chartData.map(d => d.value);
+  const yMin = Math.min(...yValues);
+  const yMax = Math.max(...yValues);
+  const yPadding = (yMax - yMin) * 0.1; // 10% padding
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -139,13 +145,17 @@ const InspectionPage = () => {
                 <div className="h-96 w-full">
                   <ChartContainer config={chartConfig}>
                     <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
+                      <LineChart 
+                        data={chartData} 
+                        margin={{ top: 20, right: 30, left: 60, bottom: 80 }}
+                      >
                         <CartesianGrid strokeDasharray="3 3" />
                         <XAxis 
                           dataKey="index"
                           type="number"
                           scale="linear"
-                          domain={['dataMin', 'dataMax']}
+                          domain={[0, chartData.length - 1]}
+                          ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
                           tickFormatter={(value) => {
                             const point = chartData[Math.floor(value)];
                             return point ? point.formattedTime : '';
@@ -157,7 +167,7 @@ const InspectionPage = () => {
                           }}
                         />
                         <YAxis 
-                          domain={['dataMin - 0.5', 'dataMax + 0.5']}
+                          domain={[yMin - yPadding, yMax + yPadding]}
                           label={{ 
                             value: graphData.y_label, 
                             angle: -90, 
@@ -175,8 +185,8 @@ const InspectionPage = () => {
                           type="monotone" 
                           dataKey="value" 
                           stroke="var(--color-value)" 
-                          strokeWidth={2}
-                          dot={{ r: 2 }}
+                          strokeWidth={1.5}
+                          dot={false}
                           connectNulls={false}
                         />
                         {/* Add reference lines for anomalies */}
