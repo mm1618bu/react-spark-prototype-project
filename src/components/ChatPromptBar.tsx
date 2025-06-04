@@ -28,22 +28,22 @@ export const ChatPromptBar = ({ onMessageSent, onTyping }: ChatPromptBarProps) =
   };
 
   return (
-    <div className="mt-6">
+    <div className="w-full max-w-xl mx-auto">
       <form onSubmit={handleSubmit} className="relative flex items-center w-full">
-        <Input
+        <Input 
+          className="pr-10 bg-sage-50 border-none focus-visible:ring-sage-200 text-gray-600 placeholder:text-gray-400"
+          placeholder="Ask away!" 
           value={input}
           onChange={handleInputChange}
-          placeholder="Ask away!"
-          className="pr-12 bg-gray-50 border-gray-200 rounded-lg h-12 text-gray-600 placeholder:text-gray-400 focus-visible:ring-sage-200"
         />
         <Button 
-          type="submit" 
+          type="submit"
           size="icon" 
           variant="ghost" 
-          className="absolute right-2 text-sage-500 hover:text-sage-700 hover:bg-transparent"
+          className="absolute right-1 text-sage-500 hover:text-sage-700 hover:bg-transparent"
           disabled={!input.trim()}
         >
-          <ArrowRight size={20} />
+          <ArrowRight size={18} />
         </Button>
       </form>
     </div>
