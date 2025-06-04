@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -30,70 +31,13 @@ interface GraphData {
 const InspectionPage = () => {
   const [graphData, setGraphData] = useState<GraphData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // Sample data for demonstration
-  const sampleData: GraphData = {
-    title: "Outlier detection for Greensand crane June-December 2024",
-    x_label: "Time",
-    y_label: "Vibration (mm/s)",
-    x_tick_labels: ["Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-    vibration_data: [
-      { timestamp: "2024-07-01T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-07-05T00:00:00Z", value: 2.1 },
-      { timestamp: "2024-07-10T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-07-15T00:00:00Z", value: 2.2 },
-      { timestamp: "2024-07-20T00:00:00Z", value: 2.5 },
-      { timestamp: "2024-07-25T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-08-01T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-08-05T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-08-10T00:00:00Z", value: 2.7 },
-      { timestamp: "2024-08-15T00:00:00Z", value: 2.8 },
-      { timestamp: "2024-08-20T00:00:00Z", value: 2.5 },
-      { timestamp: "2024-08-25T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-09-01T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-09-05T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-09-10T00:00:00Z", value: 2.7 },
-      { timestamp: "2024-09-15T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-09-20T00:00:00Z", value: 2.8 },
-      { timestamp: "2024-09-25T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-10-01T00:00:00Z", value: 2.2 },
-      { timestamp: "2024-10-05T00:00:00Z", value: 2.5 },
-      { timestamp: "2024-10-10T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-10-15T00:00:00Z", value: 2.9 },
-      { timestamp: "2024-10-20T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-10-25T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-11-01T00:00:00Z", value: 3.1 },
-      { timestamp: "2024-11-02T06:00:00Z", value: 4.5 },
-      { timestamp: "2024-11-02T06:15:00Z", value: 4.8 },
-      { timestamp: "2024-11-05T00:00:00Z", value: 2.8 },
-      { timestamp: "2024-11-10T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-11-15T00:00:00Z", value: 2.7 },
-      { timestamp: "2024-11-20T00:00:00Z", value: 2.5 },
-      { timestamp: "2024-11-25T00:00:00Z", value: 2.9 },
-      { timestamp: "2024-12-01T00:00:00Z", value: 2.4 },
-      { timestamp: "2024-12-05T00:00:00Z", value: 2.6 },
-      { timestamp: "2024-12-10T01:30:00Z", value: 4.2 },
-      { timestamp: "2024-12-10T02:00:00Z", value: 4.6 },
-      { timestamp: "2024-12-15T00:00:00Z", value: 2.3 },
-      { timestamp: "2024-12-20T00:00:00Z", value: 2.5 },
-      { timestamp: "2024-12-25T00:00:00Z", value: 2.4 }
-    ],
-    anomalies: [
-      {
-        start: "2024-11-02T06:00:00Z",
-        end: "2024-11-02T06:15:00Z"
-      },
-      {
-        start: "2024-12-10T01:30:00Z",
-        end: "2024-12-10T02:00:00Z"
-      }
-    ]
-  };
-
   const fetchGraphData = async () => {
     setIsLoading(true);
+    setError(null);
     try {
       const response = await fetch('http://localhost:5001/inspection', {
         method: 'GET',
@@ -115,11 +59,10 @@ const InspectionPage = () => {
       });
     } catch (error) {
       console.error('Error fetching graph data:', error);
-      // Use sample data when API fails
-      setGraphData(sampleData);
+      setError('Failed to load graph data. Please check your backend connection.');
       toast({
-        title: "Using Sample Data",
-        description: "Could not connect to backend, showing sample data",
+        title: "Error",
+        description: "Could not connect to backend. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -136,8 +79,7 @@ const InspectionPage = () => {
   };
 
   // Transform data for recharts
-  const displayData = graphData || sampleData;
-  const chartData = displayData?.vibration_data?.map((point, index) => {
+  const chartData = graphData?.vibration_data?.map((point, index) => {
     const date = new Date(point.timestamp);
     return {
       index,
@@ -153,7 +95,7 @@ const InspectionPage = () => {
 
   const chartConfig = {
     value: {
-      label: displayData?.y_label || "Vibration",
+      label: graphData?.y_label || "Vibration",
       color: "#2563eb",
     },
   };
@@ -183,10 +125,15 @@ const InspectionPage = () => {
             <div className="text-center py-8">
               <p className="text-gray-500">Loading graph data...</p>
             </div>
-          ) : (
+          ) : error ? (
+            <div className="text-center py-8">
+              <p className="text-red-500 mb-4">{error}</p>
+              <Button onClick={fetchGraphData}>Try Again</Button>
+            </div>
+          ) : graphData ? (
             <Card>
               <CardHeader>
-                <CardTitle>{displayData.title}</CardTitle>
+                <CardTitle>{graphData.title}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="h-96 w-full">
@@ -204,7 +151,7 @@ const InspectionPage = () => {
                             return point ? point.formattedTime : '';
                           }}
                           label={{ 
-                            value: displayData.x_label, 
+                            value: graphData.x_label, 
                             position: 'insideBottom', 
                             offset: -10 
                           }}
@@ -212,7 +159,7 @@ const InspectionPage = () => {
                         <YAxis 
                           domain={['dataMin - 0.5', 'dataMax + 0.5']}
                           label={{ 
-                            value: displayData.y_label, 
+                            value: graphData.y_label, 
                             angle: -90, 
                             position: 'insideLeft' 
                           }}
@@ -233,7 +180,7 @@ const InspectionPage = () => {
                           connectNulls={false}
                         />
                         {/* Add reference lines for anomalies */}
-                        {displayData.anomalies?.map((anomaly, index) => {
+                        {graphData.anomalies?.map((anomaly, index) => {
                           const startTime = new Date(anomaly.start).getTime();
                           const endTime = new Date(anomaly.end).getTime();
                           const startIndex = chartData.findIndex(point => 
@@ -275,11 +222,11 @@ const InspectionPage = () => {
                 </div>
                 
                 {/* Anomaly Summary */}
-                {displayData.anomalies && displayData.anomalies.length > 0 && (
+                {graphData.anomalies && graphData.anomalies.length > 0 && (
                   <div className="mt-6">
                     <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
                     <div className="grid gap-2">
-                      {displayData.anomalies.map((anomaly, index) => (
+                      {graphData.anomalies.map((anomaly, index) => (
                         <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
                           <p className="text-sm">
                             <span className="font-medium">Anomaly {index + 1}:</span>{' '}
@@ -292,6 +239,10 @@ const InspectionPage = () => {
                 )}
               </CardContent>
             </Card>
+          ) : (
+            <div className="text-center py-8">
+              <p className="text-gray-500">No data available. Please try refreshing.</p>
+            </div>
           )}
         </div>
       </div>
