@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon } from 'lucide-react';
 import { Button } from './ui/button';
@@ -12,13 +11,21 @@ export const Sidebar = () => {
     navigate('/settings');
   };
 
+  const handleLogoClick = () => {
+    navigate('/chat');
+  };
+
   return (
     <div className="h-screen bg-sage-500 w-[80px] flex flex-col items-center py-4 text-white">
-      <div className="mb-8 text-xl font-bold">
+      <button 
+        onClick={handleLogoClick}
+        className="mb-8 text-xl font-bold hover:opacity-80 transition-opacity cursor-pointer"
+      >
         <span className="text-white">(</span>
         <span className="text-sage-200">*</span>
         <span className="text-white">)</span>
-      </div>
+      </button>
+      
       <div className="flex flex-col space-y-6">
         <TooltipProvider>
           <Tooltip>
