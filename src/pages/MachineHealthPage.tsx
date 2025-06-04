@@ -7,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 
 interface MachineData {
   id: string;
-  machineA: string;
+  machine: string;
   severityLevel: string;
   lastAnomaly: string;
   sensorType: string;
@@ -63,7 +63,7 @@ const MachineHealthPage = () => {
   const handleInspectAnomaly = (machine: MachineData) => {
     toast({
       title: "Inspect Anomaly",
-      description: `Inspecting anomaly for ${machine.machineA}`,
+      description: `Inspecting anomaly for ${machine.machine}`,
     });
     // Here you would typically navigate to a detailed inspection page
     console.log('Inspecting anomaly for machine:', machine);
@@ -108,7 +108,7 @@ const MachineHealthPage = () => {
                       }`}
                       onClick={() => handleRowClick(machine.id)}
                     >
-                      <TableCell className="font-medium">{machine.machineA}</TableCell>
+                      <TableCell className="font-medium">{machine.machine}</TableCell>
                       <TableCell>
                         <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                           machine.severityLevel === 'High' ? 'bg-red-100 text-red-800' :
