@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FileText, Settings, Info, BookmarkIcon } from 'lucide-react';
+import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,10 @@ export const Sidebar = () => {
 
   const handleLogoClick = () => {
     navigate('/');
+  };
+
+  const handleMachineHealthClick = () => {
+    navigate('/machine-health');
   };
 
   return (
@@ -50,6 +54,24 @@ export const Sidebar = () => {
             </TooltipTrigger>
             <TooltipContent side="right">
               <p>Saved Queries</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:bg-sage-600"
+                onClick={handleMachineHealthClick}
+              >
+                <Heart size={20} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Machine Health</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
