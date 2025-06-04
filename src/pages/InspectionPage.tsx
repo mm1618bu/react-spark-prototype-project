@@ -1,10 +1,8 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -93,13 +91,6 @@ const InspectionPage = () => {
     };
   }).sort((a, b) => a.date - b.date) || [];
 
-  const chartConfig = {
-    value: {
-      label: graphData?.y_label || "Vibration",
-      color: "#2563eb",
-    },
-  };
-
   // Calculate proper domain for Y-axis
   const yValues = chartData.map(d => d.value);
   const yMin = Math.min(...yValues);
@@ -142,94 +133,79 @@ const InspectionPage = () => {
                 <CardTitle>{graphData.title}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-96 w-full">
-                  <ChartContainer config={chartConfig}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart 
-                        data={chartData} 
-                        margin={{ top: 20, right: 30, left: 60, bottom: 20 }}
-                      >
-                        <CartesianGrid strokeDasharray="3 3" />
-                        <XAxis 
-                          dataKey="index"
-                          type="number"
-                          scale="linear"
-                          domain={[0, chartData.length - 1]}
-                          ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
-                          tickFormatter={(value) => {
-                            const point = chartData[Math.floor(value)];
-                            return point ? point.formattedTime : '';
-                          }}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 12 }}
-                        />
-                        <YAxis 
-                          domain={[yMin - yPadding, yMax + yPadding]}
-                          label={{ 
-                            value: graphData.y_label, 
-                            angle: -90, 
-                            position: 'insideLeft' 
-                          }}
-                          axisLine={false}
-                          tickLine={false}
-                          tick={{ fontSize: 12 }}
-                        />
-                        <ChartTooltip 
-                          content={<ChartTooltipContent />}
-                          labelFormatter={(value) => {
-                            const point = chartData[Math.floor(value as number)];
-                            return point ? `Time: ${point.formattedTime}` : '';
-                          }}
-                        />
-                        <Line 
-                          type="monotone" 
-                          dataKey="value" 
-                          stroke="var(--color-value)" 
-                          strokeWidth={1.5}
-                          dot={false}
-                          connectNulls={false}
-                        />
-                        {/* Add reference lines for anomalies */}
-                        {graphData.anomalies?.map((anomaly, index) => {
-                          const startTime = new Date(anomaly.start).getTime();
-                          const endTime = new Date(anomaly.end).getTime();
-                          const startIndex = chartData.findIndex(point => 
-                            new Date(point.timestamp).getTime() >= startTime
-                          );
-                          const endIndex = chartData.findIndex(point => 
-                            new Date(point.timestamp).getTime() >= endTime
-                          );
-                          
-                          if (startIndex === -1) return null;
-                          
-                          return (
-                            <React.Fragment key={index}>
+                <div className="w-full" style={{ height: '400px' }}>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart 
+                      data={chartData} 
+                      margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis 
+                        dataKey="index"
+                        type="number"
+                        scale="linear"
+                        domain={[0, chartData.length - 1]}
+                        ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
+                        tickFormatter={(value) => {
+                          const point = chartData[Math.floor(value)];
+                          return point ? point.formattedTime : '';
+                        }}
+                      />
+                      <YAxis 
+                        domain={[yMin - yPadding, yMax + yPadding]}
+                        label={{ 
+                          value: graphData.y_label, 
+                          angle: -90, 
+                          position: 'insideLeft' 
+                        }}
+                      />
+                      <Line 
+                        type="monotone" 
+                        dataKey="value" 
+                        stroke="#2563eb" 
+                        strokeWidth={2}
+                        dot={false}
+                        connectNulls={false}
+                      />
+                      {/* Add reference lines for anomalies */}
+                      {graphData.anomalies?.map((anomaly, index) => {
+                        const startTime = new Date(anomaly.start).getTime();
+                        const endTime = new Date(anomaly.end).getTime();
+                        const startIndex = chartData.findIndex(point => 
+                          new Date(point.timestamp).getTime() >= startTime
+                        );
+                        const endIndex = chartData.findIndex(point => 
+                          new Date(point.timestamp).getTime() >= endTime
+                        );
+                        
+                        if (startIndex === -1) return null;
+                        
+                        return (
+                          <React.Fragment key={index}>
+                            <ReferenceLine 
+                              x={startIndex} 
+                              stroke="#ef4444" 
+                              strokeDasharray="5 5"
+                              strokeWidth={2}
+                              label={{ 
+                                value: `Anomaly ${index + 1}`, 
+                                position: "top",
+                                style: { fill: '#ef4444' }
+                              }}
+                            />
+                            {endIndex !== -1 && endIndex !== startIndex && (
                               <ReferenceLine 
-                                x={startIndex} 
+                                x={endIndex} 
                                 stroke="#ef4444" 
                                 strokeDasharray="5 5"
                                 strokeWidth={2}
-                                label={{ 
-                                  value: `Anomaly ${index + 1}`, 
-                                  position: "top",
-                                  style: { fill: '#ef4444' }
-                                }}
                               />
-                              {endIndex !== -1 && endIndex !== startIndex && (
-                                <ReferenceLine 
-                                  x={endIndex} 
-                                  stroke="#ef4444" 
-                                  strokeDasharray="5 5"
-                                  strokeWidth={2}
-                                />
-                              )}
-                            </React.Fragment>
-                          );
-                        })}
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </ChartContainer>
+                            )}
+                          </React.Fragment>
+                        );
+                      })}
+                    </LineChart>
+                  </ResponsiveContainer>
                 </div>
                 
                 {/* Anomaly Summary */}
