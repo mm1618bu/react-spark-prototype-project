@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -19,6 +20,31 @@ const MachineHealthPage = () => {
   const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  // Sample data for demonstration
+  const sampleData: MachineData[] = [
+    {
+      id: "sample-1",
+      machine: "CNC Machine A1",
+      severityLevel: "High",
+      lastAnomaly: "2024-06-03T14:30:00",
+      sensorType: "Vibration"
+    },
+    {
+      id: "sample-2", 
+      machine: "Hydraulic Press B2",
+      severityLevel: "Medium",
+      lastAnomaly: "2024-06-02T09:15:00",
+      sensorType: "Temperature"
+    },
+    {
+      id: "sample-3",
+      machine: "Assembly Line C3", 
+      severityLevel: "Low",
+      lastAnomaly: "2024-06-01T16:45:00",
+      sensorType: "Pressure"
+    }
+  ];
 
   const fetchMachineData = async () => {
     setIsLoading(true);
@@ -43,9 +69,11 @@ const MachineHealthPage = () => {
       });
     } catch (error) {
       console.error('Error fetching machine data:', error);
+      // Use sample data when API fails
+      setMachines(sampleData);
       toast({
-        title: "Error",
-        description: "Failed to fetch machine health data",
+        title: "Using Sample Data",
+        description: "Could not connect to backend, showing sample data",
         variant: "destructive",
       });
     } finally {
@@ -70,6 +98,8 @@ const MachineHealthPage = () => {
     navigate('/inspection');
   };
 
+  const displayData = machines.length > 0 ? machines : sampleData;
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
@@ -86,7 +116,7 @@ const MachineHealthPage = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Machine A</TableHead>
+                  <TableHead>Machine</TableHead>
                   <TableHead>Severity Level</TableHead>
                   <TableHead>Last Anomaly</TableHead>
                   <TableHead>Sensor Type</TableHead>
@@ -94,48 +124,40 @@ const MachineHealthPage = () => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {machines.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center py-8 text-gray-500">
-                      {isLoading ? 'Loading machine data...' : 'No machine data available'}
+                {displayData.map((machine) => (
+                  <TableRow 
+                    key={machine.id}
+                    className={`cursor-pointer hover:bg-gray-50 ${
+                      selectedMachine === machine.id ? 'bg-blue-50' : ''
+                    }`}
+                    onClick={() => handleRowClick(machine.id)}
+                  >
+                    <TableCell className="font-medium">{machine.machine}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                        machine.severityLevel === 'High' ? 'bg-red-100 text-red-800' :
+                        machine.severityLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-green-100 text-green-800'
+                      }`}>
+                        {machine.severityLevel}
+                      </span>
+                    </TableCell>
+                    <TableCell>{new Date(machine.lastAnomaly).toLocaleString()}</TableCell>
+                    <TableCell>{machine.sensorType}</TableCell>
+                    <TableCell>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleInspectAnomaly(machine);
+                        }}
+                      >
+                        Inspect Anomaly
+                      </Button>
                     </TableCell>
                   </TableRow>
-                ) : (
-                  machines.map((machine) => (
-                    <TableRow 
-                      key={machine.id}
-                      className={`cursor-pointer hover:bg-gray-50 ${
-                        selectedMachine === machine.id ? 'bg-blue-50' : ''
-                      }`}
-                      onClick={() => handleRowClick(machine.id)}
-                    >
-                      <TableCell className="font-medium">{machine.machine}</TableCell>
-                      <TableCell>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                          machine.severityLevel === 'High' ? 'bg-red-100 text-red-800' :
-                          machine.severityLevel === 'Medium' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-green-100 text-green-800'
-                        }`}>
-                          {machine.severityLevel}
-                        </span>
-                      </TableCell>
-                      <TableCell>{machine.lastAnomaly}</TableCell>
-                      <TableCell>{machine.sensorType}</TableCell>
-                      <TableCell>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleInspectAnomaly(machine);
-                          }}
-                        >
-                          Inspect Anomaly
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                )}
+                ))}
               </TableBody>
             </Table>
           </div>
