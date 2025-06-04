@@ -67,11 +67,6 @@ const InspectionPage = () => {
 
       const data = await response.json();
       setGraphData(data);
-      
-      toast({
-        title: "Success",
-        description: "Graph data loaded successfully",
-      });
     } catch (error) {
       console.error('Error fetching graph data:', error);
       setError('Failed to load graph data. Please check your backend connection.');
