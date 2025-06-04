@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -255,7 +254,7 @@ const InspectionPage = () => {
                                 strokeWidth={2}
                                 label={{ 
                                   value: `Anomaly ${index + 1}`, 
-                                  position: "topLeft",
+                                  position: "top",
                                   style: { fill: '#ef4444' }
                                 }}
                               />
