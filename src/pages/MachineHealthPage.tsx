@@ -1,9 +1,9 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useNavigate } from 'react-router-dom';
 
 interface MachineData {
   id: string;
@@ -18,6 +18,7 @@ const MachineHealthPage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedMachine, setSelectedMachine] = useState<string | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const fetchMachineData = async () => {
     setIsLoading(true);
@@ -65,8 +66,8 @@ const MachineHealthPage = () => {
       title: "Inspect Anomaly",
       description: `Inspecting anomaly for ${machine.machine}`,
     });
-    // Here you would typically navigate to a detailed inspection page
-    console.log('Inspecting anomaly for machine:', machine);
+    // Navigate to inspection page
+    navigate('/inspection');
   };
 
   return (
