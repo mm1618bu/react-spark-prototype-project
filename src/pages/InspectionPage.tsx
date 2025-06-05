@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -173,7 +174,7 @@ const InspectionPage = () => {
   const yMax = Math.max(...yValues);
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
 
-  // Generate hourly tick positions
+  // Generate hourly tick positions - only show ticks at hour boundaries
   const generateHourlyTicks = () => {
     if (chartData.length === 0) return [];
     
@@ -184,6 +185,7 @@ const InspectionPage = () => {
     // Start from the next hour boundary
     const startHour = new Date(Math.ceil(startTime / (1000 * 60 * 60)) * (1000 * 60 * 60));
     
+    // Generate tick for every hour within the data range
     for (let time = startHour.getTime(); time <= endTime; time += (1000 * 60 * 60)) {
       // Find the closest data point index for this hour
       const closestIndex = chartData.findIndex(point => point.date >= time);
@@ -291,7 +293,7 @@ const InspectionPage = () => {
                               type="number"
                               scale="linear"
                               domain={[0, chartData.length - 1]}
-                              ticks={hourlyTicks.length > 0 ? hourlyTicks : [0, chartData.length - 1]}
+                              ticks={hourlyTicks}
                               tickFormatter={(value) => {
                                 const point = chartData[Math.floor(value)];
                                 if (!point) return '';
