@@ -1,10 +1,11 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceLine } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
@@ -303,34 +304,33 @@ const InspectionPage = () => {
                               const startIndex = chartData.findIndex(point => 
                                 new Date(point.timestamp).getTime() >= startTime
                               );
-                              const endIndex = chartData.findIndex(point => 
+                              let endIndex = chartData.findIndex(point => 
                                 new Date(point.timestamp).getTime() >= endTime
                               );
+                              
+                              // If endIndex is -1, use the last data point
+                              if (endIndex === -1) {
+                                endIndex = chartData.length - 1;
+                              }
                               
                               if (startIndex === -1) return null;
                               
                               return (
-                                <React.Fragment key={index}>
-                                  <ReferenceLine 
-                                    x={startIndex} 
-                                    stroke="#ef4444" 
-                                    strokeDasharray="5 5"
-                                    strokeWidth={!isGraphExpanded ? 1 : 2}
-                                    label={isGraphExpanded ? { 
-                                      value: `Anomaly ${index + 1}`, 
-                                      position: "top",
-                                      style: { fill: '#ef4444' }
-                                    } : undefined}
-                                  />
-                                  {endIndex !== -1 && endIndex !== startIndex && (
-                                    <ReferenceLine 
-                                      x={endIndex} 
-                                      stroke="#ef4444" 
-                                      strokeDasharray="5 5"
-                                      strokeWidth={!isGraphExpanded ? 1 : 2}
-                                    />
-                                  )}
-                                </React.Fragment>
+                                <ReferenceArea
+                                  key={index}
+                                  x1={startIndex}
+                                  x2={endIndex}
+                                  fill="#ef4444"
+                                  fillOpacity={0.2}
+                                  stroke="#ef4444"
+                                  strokeWidth={1}
+                                  strokeDasharray="3 3"
+                                  label={isGraphExpanded ? { 
+                                    value: `Anomaly ${index + 1}`, 
+                                    position: "top",
+                                    style: { fill: '#ef4444', fontSize: 12 }
+                                  } : undefined}
+                                />
                               );
                             })}
                           </LineChart>
