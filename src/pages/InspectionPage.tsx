@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -356,14 +357,16 @@ const InspectionPage = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Chat prompt bar positioned right below the graph */}
-                  <div className="mt-6 mb-4">
-                    <ChatPromptBar 
-                      onMessageSent={handleMessageSent} 
-                      onTyping={handleTyping} 
-                      source="anomaly"
-                    />
-                  </div>
+                  {/* Show chat prompt bar initially, then move below messages once chat starts */}
+                  {!isChatMode && (
+                    <div className="mt-6 mb-4">
+                      <ChatPromptBar 
+                        onMessageSent={handleMessageSent} 
+                        onTyping={handleTyping} 
+                        source="anomaly"
+                      />
+                    </div>
+                  )}
                   
                   {messages.length > 0 && (
                     <div className="space-y-3 max-w-4xl mx-auto pb-4">
@@ -390,6 +393,17 @@ const InspectionPage = () => {
                           <p className="text-gray-500 text-sm">Thinking...</p>
                         </div>
                       )}
+                    </div>
+                  )}
+
+                  {/* Show chat prompt bar below messages once chat mode is active */}
+                  {isChatMode && (
+                    <div className="mt-4 mb-4">
+                      <ChatPromptBar 
+                        onMessageSent={handleMessageSent} 
+                        onTyping={handleTyping} 
+                        source="anomaly"
+                      />
                     </div>
                   )}
                 </div>
