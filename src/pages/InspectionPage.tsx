@@ -179,11 +179,11 @@ const InspectionPage = () => {
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <div className="flex-1 flex flex-col bg-gray-50 overflow-hidden">
-        <div className="flex-1 overflow-y-auto">
-          <div className="p-8">
+      <div className="flex-1 flex flex-col bg-gray-50">
+        <ScrollArea className="flex-1">
+          <div className="p-6">
             <div className="max-w-6xl mx-auto">
-              <div className="flex items-center gap-4 mb-8">
+              <div className="flex items-center gap-4 mb-6">
                 <Button 
                   variant="outline" 
                   size="sm" 
@@ -193,7 +193,7 @@ const InspectionPage = () => {
                   <ArrowLeft size={16} />
                   Back to Machine Health
                 </Button>
-                <h1 className="text-3xl font-bold text-gray-900">Anomaly Inspection</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Anomaly Inspection</h1>
                 <Button onClick={fetchGraphData} disabled={isLoading}>
                   {isLoading ? 'Refreshing...' : 'Refresh Data'}
                 </Button>
@@ -209,7 +209,7 @@ const InspectionPage = () => {
                   <Button onClick={fetchGraphData}>Try Again</Button>
                 </div>
               ) : graphData ? (
-                <div className="space-y-6">
+                <div className="space-y-4">
                   <Card className="transition-all duration-500 ease-in-out transform-gpu">
                     <CardHeader 
                       className={`transition-all duration-500 ease-in-out flex flex-row items-center justify-between ${
@@ -218,7 +218,7 @@ const InspectionPage = () => {
                     >
                       <CardTitle 
                         className={`transition-all duration-500 ease-in-out ${
-                          !isGraphExpanded ? 'text-lg' : 'text-2xl'
+                          !isGraphExpanded ? 'text-lg' : 'text-xl'
                         }`}
                       >
                         {graphData.title}
@@ -250,7 +250,7 @@ const InspectionPage = () => {
                       <div 
                         className="w-full transition-all duration-500 ease-in-out" 
                         style={{ 
-                          height: !isGraphExpanded ? '150px' : '400px',
+                          height: !isGraphExpanded ? '120px' : '300px',
                           opacity: !isGraphExpanded ? 0.7 : 1
                         }}
                       >
@@ -258,10 +258,10 @@ const InspectionPage = () => {
                           <LineChart 
                             data={chartData} 
                             margin={{ 
-                              top: !isGraphExpanded ? 10 : 20, 
-                              right: !isGraphExpanded ? 15 : 30, 
-                              left: !isGraphExpanded ? 30 : 60, 
-                              bottom: !isGraphExpanded ? 10 : 60 
+                              top: !isGraphExpanded ? 5 : 15, 
+                              right: !isGraphExpanded ? 10 : 20, 
+                              left: !isGraphExpanded ? 25 : 45, 
+                              bottom: !isGraphExpanded ? 5 : 30 
                             }}
                           >
                             <CartesianGrid strokeDasharray="3 3" />
@@ -278,7 +278,7 @@ const InspectionPage = () => {
                                   hour12: false
                                 });
                               }}
-                              tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
+                              tick={{ fontSize: !isGraphExpanded ? 9 : 11 }}
                             />
                             <YAxis 
                               domain={[yMin - yPadding, yMax + yPadding]}
@@ -286,9 +286,9 @@ const InspectionPage = () => {
                                 value: graphData.y_label, 
                                 angle: -90, 
                                 position: 'insideLeft',
-                                style: { fontSize: !isGraphExpanded ? 10 : 12 }
+                                style: { fontSize: !isGraphExpanded ? 9 : 11 }
                               }}
-                              tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
+                              tick={{ fontSize: !isGraphExpanded ? 9 : 11 }}
                             />
                             <Line 
                               type="monotone" 
@@ -315,7 +315,7 @@ const InspectionPage = () => {
                                   label={isGraphExpanded ? { 
                                     value: `Anomaly ${index + 1}`, 
                                     position: "top",
-                                    style: { fill: '#ef4444', fontSize: 12, fontWeight: 'bold' }
+                                    style: { fill: '#ef4444', fontSize: 10, fontWeight: 'bold' }
                                   } : undefined}
                                 />
                               );
@@ -326,16 +326,16 @@ const InspectionPage = () => {
                       
                       <div 
                         className={`transition-all duration-500 ease-in-out overflow-hidden ${
-                          !isGraphExpanded ? 'max-h-0 opacity-0 mt-0' : 'max-h-96 opacity-100 mt-6'
+                          !isGraphExpanded ? 'max-h-0 opacity-0 mt-0' : 'max-h-48 opacity-100 mt-4'
                         }`}
                       >
                         {graphData.anomalies && graphData.anomalies.length > 0 && (
                           <div>
-                            <h3 className="text-lg font-semibold mb-3">Detected Anomalies</h3>
-                            <div className="grid gap-2">
+                            <h3 className="text-md font-semibold mb-2">Detected Anomalies</h3>
+                            <div className="grid gap-1">
                               {graphData.anomalies.map((anomaly, index) => (
-                                <div key={index} className="bg-red-50 border border-red-200 rounded p-3">
-                                  <p className="text-sm">
+                                <div key={index} className="bg-red-50 border border-red-200 rounded p-2">
+                                  <p className="text-xs">
                                     <span className="font-medium">Anomaly {index + 1}:</span>{' '}
                                     {new Date(anomaly.start).toLocaleString()} - {new Date(anomaly.end).toLocaleString()}
                                   </p>
@@ -348,7 +348,7 @@ const InspectionPage = () => {
 
                       {!isGraphExpanded && isChatMode && (
                         <div 
-                          className="text-sm text-gray-500 mt-2 transition-all duration-500 ease-in-out"
+                          className="text-xs text-gray-500 mt-1 transition-all duration-500 ease-in-out"
                         >
                           Chart minimized - click "Expand" to view full details
                         </div>
@@ -357,14 +357,14 @@ const InspectionPage = () => {
                   </Card>
                   
                   {messages.length > 0 && (
-                    <div className="space-y-4 max-w-4xl mx-auto pb-32">
+                    <div className="space-y-3 max-w-4xl mx-auto pb-4">
                       {messages.map((message, index) => (
                         <div 
                           key={index} 
-                          className={`p-4 rounded-lg ${
+                          className={`p-3 rounded-lg ${
                             message.role === 'user' 
-                              ? 'bg-sage-100 ml-12' 
-                              : 'bg-white border shadow-sm mr-12'
+                              ? 'bg-sage-100 ml-8' 
+                              : 'bg-white border shadow-sm mr-8'
                           }`}
                         >
                           {message.role === 'system' && message.format === 'markdown' ? (
@@ -372,13 +372,13 @@ const InspectionPage = () => {
                               <ReactMarkdown>{message.content}</ReactMarkdown>
                             </div>
                           ) : (
-                            <p>{message.content}</p>
+                            <p className="text-sm">{message.content}</p>
                           )}
                         </div>
                       ))}
                       {isQueryLoading && (
-                        <div className="bg-white border shadow-sm p-4 rounded-lg mr-12">
-                          <p className="text-gray-500">Thinking...</p>
+                        <div className="bg-white border shadow-sm p-3 rounded-lg mr-8">
+                          <p className="text-gray-500 text-sm">Thinking...</p>
                         </div>
                       )}
                     </div>
@@ -391,7 +391,7 @@ const InspectionPage = () => {
               )}
             </div>
           </div>
-        </div>
+        </ScrollArea>
         
         <div className="border-t bg-white p-4 flex-shrink-0">
           <ChatPromptBar 
