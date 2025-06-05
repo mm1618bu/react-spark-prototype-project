@@ -85,6 +85,7 @@ const InspectionPage = () => {
   }, []);
 
   const handleBackClick = () => {
+    console.log('Back button clicked, navigating to /machine-health');
     navigate('/machine-health');
   };
 
