@@ -355,6 +355,15 @@ const InspectionPage = () => {
                       )}
                     </CardContent>
                   </Card>
+
+                  {/* Chat prompt bar positioned right below the graph */}
+                  <div className="mt-6 mb-4">
+                    <ChatPromptBar 
+                      onMessageSent={handleMessageSent} 
+                      onTyping={handleTyping} 
+                      source="anomaly"
+                    />
+                  </div>
                   
                   {messages.length > 0 && (
                     <div className="space-y-3 max-w-4xl mx-auto pb-4">
@@ -392,14 +401,6 @@ const InspectionPage = () => {
             </div>
           </div>
         </ScrollArea>
-        
-        <div className="border-t bg-white p-4 flex-shrink-0">
-          <ChatPromptBar 
-            onMessageSent={handleMessageSent} 
-            onTyping={handleTyping} 
-            source="anomaly"
-          />
-        </div>
       </div>
     </div>
   );
