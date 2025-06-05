@@ -116,7 +116,7 @@ const InspectionPage = () => {
         }
       ]);
       
-      // Removed the success toast notification
+      // Removed all toast notifications for successful queries
     } catch (error) {
       console.error('Failed to send query:', error);
       
