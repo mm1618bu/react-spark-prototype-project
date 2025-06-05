@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -149,14 +148,13 @@ const InspectionPage = () => {
     setIsGraphExpanded(!isGraphExpanded);
   };
 
-  // Transform data for recharts with hourly time formatting
-  const chartData = graphData?.vibration_data?.map((point, index) => {
+  // Transform data for recharts with proper time-based positioning
+  const chartData = graphData?.vibration_data?.map((point) => {
     const date = new Date(point.timestamp);
     return {
-      index,
       timestamp: point.timestamp,
       value: point.value,
-      date: date.getTime(),
+      timeValue: date.getTime(), // Use milliseconds for proper time positioning
       hourLabel: date.toLocaleDateString('en-US', { 
         month: 'short', 
         day: 'numeric' 
@@ -166,13 +164,17 @@ const InspectionPage = () => {
         hour12: false
       }),
     };
-  }).sort((a, b) => a.date - b.date) || [];
+  }).sort((a, b) => a.timeValue - b.timeValue) || [];
 
-  // Calculate proper domain for Y-axis
+  // Calculate proper domain for axes
   const yValues = chartData.map(d => d.value);
   const yMin = Math.min(...yValues);
   const yMax = Math.max(...yValues);
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
+
+  const timeValues = chartData.map(d => d.timeValue);
+  const timeMin = Math.min(...timeValues);
+  const timeMax = Math.max(...timeValues);
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -264,14 +266,12 @@ const InspectionPage = () => {
                           >
                             <CartesianGrid strokeDasharray="3 3" />
                             <XAxis 
-                              dataKey="index"
+                              dataKey="timeValue"
                               type="number"
-                              scale="linear"
-                              domain={[0, chartData.length - 1]}
+                              scale="time"
+                              domain={[timeMin, timeMax]}
                               tickFormatter={(value) => {
-                                const point = chartData[Math.floor(value)];
-                                if (!point) return '';
-                                const date = new Date(point.timestamp);
+                                const date = new Date(value);
                                 return date.toLocaleTimeString('en-US', {
                                   hour: '2-digit',
                                   minute: '2-digit',
@@ -301,34 +301,21 @@ const InspectionPage = () => {
                             {graphData.anomalies?.map((anomaly, index) => {
                               const startTime = new Date(anomaly.start).getTime();
                               const endTime = new Date(anomaly.end).getTime();
-                              const startIndex = chartData.findIndex(point => 
-                                new Date(point.timestamp).getTime() >= startTime
-                              );
-                              let endIndex = chartData.findIndex(point => 
-                                new Date(point.timestamp).getTime() >= endTime
-                              );
-                              
-                              // If endIndex is -1, use the last data point
-                              if (endIndex === -1) {
-                                endIndex = chartData.length - 1;
-                              }
-                              
-                              if (startIndex === -1) return null;
                               
                               return (
                                 <ReferenceArea
                                   key={index}
-                                  x1={startIndex}
-                                  x2={endIndex}
+                                  x1={startTime}
+                                  x2={endTime}
                                   fill="#ef4444"
-                                  fillOpacity={0.2}
+                                  fillOpacity={0.3}
                                   stroke="#ef4444"
-                                  strokeWidth={1}
-                                  strokeDasharray="3 3"
+                                  strokeWidth={2}
+                                  strokeDasharray="5 5"
                                   label={isGraphExpanded ? { 
                                     value: `Anomaly ${index + 1}`, 
                                     position: "top",
-                                    style: { fill: '#ef4444', fontSize: 12 }
+                                    style: { fill: '#ef4444', fontSize: 12, fontWeight: 'bold' }
                                   } : undefined}
                                 />
                               );
@@ -369,7 +356,6 @@ const InspectionPage = () => {
                     </CardContent>
                   </Card>
                   
-                  {/* Chat messages section */}
                   {messages.length > 0 && (
                     <div className="space-y-4 max-w-4xl mx-auto pb-32">
                       {messages.map((message, index) => (
@@ -407,7 +393,6 @@ const InspectionPage = () => {
           </div>
         </div>
         
-        {/* Fixed chat bar at bottom */}
         <div className="border-t bg-white p-4 flex-shrink-0">
           <ChatPromptBar 
             onMessageSent={handleMessageSent} 
