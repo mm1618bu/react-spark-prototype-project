@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
 import { Button } from './ui/button';
@@ -17,6 +16,7 @@ export const Sidebar = () => {
   };
 
   const handleMachineHealthClick = () => {
+    console.log('Heart icon clicked - navigating to /machine-health');
     navigate('/machine-health');
   };
 
