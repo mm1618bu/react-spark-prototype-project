@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -174,31 +173,6 @@ const InspectionPage = () => {
   const yMax = Math.max(...yValues);
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
 
-  // Generate hourly tick positions - only show ticks at hour boundaries
-  const generateHourlyTicks = () => {
-    if (chartData.length === 0) return [];
-    
-    const startTime = chartData[0].date;
-    const endTime = chartData[chartData.length - 1].date;
-    const hourTicks = [];
-    
-    // Start from the next hour boundary
-    const startHour = new Date(Math.ceil(startTime / (1000 * 60 * 60)) * (1000 * 60 * 60));
-    
-    // Generate tick for every hour within the data range
-    for (let time = startHour.getTime(); time <= endTime; time += (1000 * 60 * 60)) {
-      // Find the closest data point index for this hour
-      const closestIndex = chartData.findIndex(point => point.date >= time);
-      if (closestIndex !== -1) {
-        hourTicks.push(closestIndex);
-      }
-    }
-    
-    return hourTicks;
-  };
-
-  const hourlyTicks = generateHourlyTicks();
-
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -293,7 +267,6 @@ const InspectionPage = () => {
                               type="number"
                               scale="linear"
                               domain={[0, chartData.length - 1]}
-                              ticks={hourlyTicks}
                               tickFormatter={(value) => {
                                 const point = chartData[Math.floor(value)];
                                 if (!point) return '';
@@ -305,7 +278,6 @@ const InspectionPage = () => {
                                 });
                               }}
                               tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
-                              interval={0}
                             />
                             <YAxis 
                               domain={[yMin - yPadding, yMax + yPadding]}
