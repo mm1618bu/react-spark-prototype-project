@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -22,6 +23,7 @@ const MachineHealthPage = () => {
   const navigate = useNavigate();
 
   const fetchMachineData = async () => {
+    console.log('Fetching machine data from backend...');
     setIsLoading(true);
     setError(null);
     try {
@@ -32,11 +34,18 @@ const MachineHealthPage = () => {
         },
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response ok:', response.ok);
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
       const data = await response.json();
+      console.log('Raw response data:', data);
+      console.log('Machines array:', data.machines);
+      console.log('Number of machines:', data.machines?.length || 0);
+      
       setMachines(data.machines || []);
     } catch (error) {
       console.error('Error fetching machine data:', error);
@@ -52,20 +61,25 @@ const MachineHealthPage = () => {
   };
 
   useEffect(() => {
+    console.log('MachineHealthPage mounted, fetching data...');
     fetchMachineData();
   }, []);
 
   const handleRowClick = (machineId: string) => {
+    console.log('Row clicked for machine:', machineId);
     setSelectedMachine(machineId);
   };
 
   const handleInspectAnomaly = (machine: MachineData) => {
+    console.log('Inspect Anomaly clicked for machine:', machine);
     toast({
       title: "Inspect Anomaly",
       description: `Inspecting anomaly for ${machine.machine}`,
     });
     navigate('/inspection');
   };
+
+  console.log('Current state - machines:', machines, 'isLoading:', isLoading, 'error:', error);
 
   return (
     <div className="flex min-h-screen">
