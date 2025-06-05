@@ -148,7 +148,7 @@ const InspectionPage = () => {
     setIsGraphExpanded(!isGraphExpanded);
   };
 
-  // Transform data for recharts
+  // Transform data for recharts with hourly time formatting
   const chartData = graphData?.vibration_data?.map((point, index) => {
     const date = new Date(point.timestamp);
     return {
@@ -156,9 +156,13 @@ const InspectionPage = () => {
       timestamp: point.timestamp,
       value: point.value,
       date: date.getTime(),
-      formattedTime: date.toLocaleDateString('en-US', { 
+      hourLabel: date.toLocaleDateString('en-US', { 
         month: 'short', 
         day: 'numeric' 
+      }) + ' ' + date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
       }),
     };
   }).sort((a, b) => a.date - b.date) || [];
@@ -168,6 +172,30 @@ const InspectionPage = () => {
   const yMin = Math.min(...yValues);
   const yMax = Math.max(...yValues);
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
+
+  // Generate hourly tick positions
+  const generateHourlyTicks = () => {
+    if (chartData.length === 0) return [];
+    
+    const startTime = chartData[0].date;
+    const endTime = chartData[chartData.length - 1].date;
+    const hourTicks = [];
+    
+    // Start from the next hour boundary
+    const startHour = new Date(Math.ceil(startTime / (1000 * 60 * 60)) * (1000 * 60 * 60));
+    
+    for (let time = startHour.getTime(); time <= endTime; time += (1000 * 60 * 60)) {
+      // Find the closest data point index for this hour
+      const closestIndex = chartData.findIndex(point => point.date >= time);
+      if (closestIndex !== -1) {
+        hourTicks.push(closestIndex);
+      }
+    }
+    
+    return hourTicks;
+  };
+
+  const hourlyTicks = generateHourlyTicks();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -263,12 +291,19 @@ const InspectionPage = () => {
                               type="number"
                               scale="linear"
                               domain={[0, chartData.length - 1]}
-                              ticks={[0, Math.floor(chartData.length / 4), Math.floor(chartData.length / 2), Math.floor(3 * chartData.length / 4), chartData.length - 1]}
+                              ticks={hourlyTicks.length > 0 ? hourlyTicks : [0, chartData.length - 1]}
                               tickFormatter={(value) => {
                                 const point = chartData[Math.floor(value)];
-                                return point ? point.formattedTime : '';
+                                if (!point) return '';
+                                const date = new Date(point.timestamp);
+                                return date.toLocaleTimeString('en-US', {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                  hour12: false
+                                });
                               }}
                               tick={{ fontSize: !isGraphExpanded ? 10 : 12 }}
+                              interval={0}
                             />
                             <YAxis 
                               domain={[yMin - yPadding, yMax + yPadding]}
