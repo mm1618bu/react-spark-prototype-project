@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -50,6 +49,14 @@ const InspectionPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q');
+
+  // Sample prompts for the inspection page
+  const samplePrompts = [
+    "What could be causing these vibration anomalies?",
+    "Analyze the pattern of anomalies in this data",
+    "What maintenance actions should I take?",
+    "How severe are these detected anomalies?"
+  ];
 
   const fetchGraphData = async () => {
     setIsLoading(true);
@@ -139,6 +146,10 @@ const InspectionPage = () => {
     } finally {
       setIsQueryLoading(false);
     }
+  };
+
+  const handleSamplePromptClick = (prompt: string) => {
+    handleMessageSent(prompt);
   };
 
   const handleTyping = (isTyping: boolean) => {
@@ -357,15 +368,35 @@ const InspectionPage = () => {
                     </CardContent>
                   </Card>
 
-                  {/* Show chat prompt bar initially, then move below messages once chat starts */}
+                  {/* Show sample prompts and chat prompt bar initially */}
                   {!isChatMode && (
-                    <div className="mt-6 mb-4">
-                      <ChatPromptBar 
-                        onMessageSent={handleMessageSent} 
-                        onTyping={handleTyping} 
-                        source="anomaly"
-                      />
-                    </div>
+                    <>
+                      {/* Sample prompts */}
+                      <div className="mt-6 mb-4">
+                        <p className="text-sm text-gray-600 mb-3">Try asking:</p>
+                        <div className="grid grid-cols-2 gap-3">
+                          {samplePrompts.map((prompt, index) => (
+                            <Button
+                              key={index}
+                              variant="outline"
+                              className="text-left h-auto p-3 bg-white hover:bg-sage-50 border-sage-200 text-gray-700 justify-start"
+                              onClick={() => handleSamplePromptClick(prompt)}
+                            >
+                              {prompt}
+                            </Button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Chat prompt bar */}
+                      <div className="mb-4">
+                        <ChatPromptBar 
+                          onMessageSent={handleMessageSent} 
+                          onTyping={handleTyping} 
+                          source="anomaly"
+                        />
+                      </div>
+                    </>
                   )}
                   
                   {messages.length > 0 && (
