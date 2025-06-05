@@ -26,8 +26,12 @@ const PostgreSQLSetupPage = () => {
     }
 
     setIsLoading(true);
+    console.log('Starting connection attempt...');
+    console.log('Database URL:', databaseUrl);
     
     try {
+      console.log('Making request to: http://localhost:5001/addConnection');
+      
       const response = await fetch('http://localhost:5001/addConnection', {
         method: 'POST',
         headers: {
@@ -39,11 +43,17 @@ const PostgreSQLSetupPage = () => {
         }),
       });
 
+      console.log('Response status:', response.status);
+      console.log('Response headers:', response.headers);
+
       if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`HTTP error! Status: ${response.status} - ${errorText}`);
       }
 
       const data = await response.json();
+      console.log('Success response:', data);
       
       toast({
         title: "Success",
@@ -54,11 +64,21 @@ const PostgreSQLSetupPage = () => {
       setDatabaseUrl('');
     } catch (error) {
       console.error('Error adding connection:', error);
-      toast({
-        title: "Error",
-        description: "Failed to add database connection",
-        variant: "destructive",
-      });
+      
+      // More detailed error handling
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        toast({
+          title: "Connection Error",
+          description: "Cannot connect to backend server. Make sure it's running on localhost:5001",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: `Failed to add database connection: ${error.message}`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -116,6 +136,12 @@ const PostgreSQLSetupPage = () => {
               >
                 {isLoading ? 'Adding Connection...' : 'Add Connection'}
               </Button>
+              
+              <div className="text-xs text-gray-400 space-y-1">
+                <p>Debug info:</p>
+                <p>• Backend URL: http://localhost:5001/addConnection</p>
+                <p>• Check browser console for detailed logs</p>
+              </div>
             </CardContent>
           </Card>
         </div>
