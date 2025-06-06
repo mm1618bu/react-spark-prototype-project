@@ -138,81 +138,77 @@ const MaintenanceSchedulePage = () => {
 
         <div className="flex-1 p-6">
           {viewMode === 'calendar' ? (
-            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-              {/* Calendar - Now takes 3 columns on xl screens */}
-              <div className="xl:col-span-3">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Maintenance Calendar</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <Calendar
-                      mode="single"
-                      selected={selectedDate}
-                      onSelect={(date) => date && setSelectedDate(date)}
-                      className="rounded-md border w-full"
-                      modifiers={{
-                        hasTasks: (date) => getTasksForDate(date).length > 0
-                      }}
-                      modifiersStyles={{
-                        hasTasks: { 
-                          backgroundColor: '#10b981', 
-                          color: 'white',
-                          fontWeight: 'bold'
-                        }
-                      }}
-                    />
-                  </CardContent>
-                </Card>
-              </div>
+            <div className="space-y-6">
+              {/* Full-width Calendar */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Maintenance Calendar</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => date && setSelectedDate(date)}
+                    className="rounded-md border scale-150"
+                    modifiers={{
+                      hasTasks: (date) => getTasksForDate(date).length > 0
+                    }}
+                    modifiersStyles={{
+                      hasTasks: { 
+                        backgroundColor: '#10b981', 
+                        color: 'white',
+                        fontWeight: 'bold'
+                      }
+                    }}
+                  />
+                </CardContent>
+              </Card>
 
-              {/* Selected Date Tasks - Now takes 1 column on xl screens */}
-              <div className="xl:col-span-1">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center space-x-2">
-                      <span>Tasks for {format(selectedDate, 'MMM dd, yyyy')}</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {selectedDateTasks.length === 0 ? (
-                      <p className="text-gray-500 text-center py-4">No maintenance tasks scheduled for this date</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {selectedDateTasks.map((task) => (
-                          <div key={task.id} className="border rounded-lg p-3 bg-white shadow-sm">
-                            <div className="flex items-start justify-between mb-2">
-                              <div>
-                                <h4 className="font-medium text-gray-900">{task.machineName}</h4>
-                                <p className="text-sm text-gray-600">{task.taskType}</p>
-                              </div>
-                              <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.priority)}`} />
+              {/* Selected Date Tasks Below Calendar */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center space-x-2">
+                    <span>Tasks for {format(selectedDate, 'MMM dd, yyyy')}</span>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {selectedDateTasks.length === 0 ? (
+                    <p className="text-gray-500 text-center py-4">No maintenance tasks scheduled for this date</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                      {selectedDateTasks.map((task) => (
+                        <div key={task.id} className="border rounded-lg p-4 bg-white shadow-sm">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h4 className="font-medium text-gray-900">{task.machineName}</h4>
+                              <p className="text-sm text-gray-600">{task.taskType}</p>
                             </div>
-                            
-                            <p className="text-xs text-gray-500 mb-2">{task.description}</p>
-                            
-                            <div className="flex items-center justify-between text-xs">
-                              <div className="flex items-center space-x-2">
-                                <Clock className="h-3 w-3" />
-                                <span>{task.duration}h</span>
-                              </div>
-                              <Badge className={getStatusColor(task.status)}>
-                                {task.status}
-                              </Badge>
-                            </div>
-                            
-                            {task.assignedTechnician && (
-                              <p className="text-xs text-gray-500 mt-1">
-                                Assigned: {task.assignedTechnician}
-                              </p>
-                            )}
+                            <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.priority)}`} />
                           </div>
-                        ))}
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
+                          
+                          <p className="text-sm text-gray-500 mb-2">{task.description}</p>
+                          
+                          <div className="flex items-center justify-between text-sm">
+                            <div className="flex items-center space-x-2">
+                              <Clock className="h-4 w-4" />
+                              <span>{task.duration}h</span>
+                            </div>
+                            <Badge className={getStatusColor(task.status)}>
+                              {task.status}
+                            </Badge>
+                          </div>
+                          
+                          {task.assignedTechnician && (
+                            <p className="text-sm text-gray-500 mt-2">
+                              Assigned: {task.assignedTechnician}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             </div>
           ) : (
             /* List View */
