@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart, CalendarDays } from 'lucide-react';
 import { Button } from './ui/button';
@@ -29,6 +30,7 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
   const navigate = useNavigate();
   const location = useLocation();
   const [showCalendar, setShowCalendar] = useState(false);
+  const [isHeartFilled, setIsHeartFilled] = useState(false);
 
   const handleSettingsClick = () => {
     navigate('/settings');
@@ -58,6 +60,10 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
     }
   };
 
+  const handleDocumentClick = () => {
+    setIsHeartFilled(!isHeartFilled);
+  };
+
   // Get dates that have maintenance tasks
   const getDatesWithTasks = () => {
     return maintenanceTasks.map(task => task.scheduledDate);
@@ -82,7 +88,12 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <Button variant="ghost" size="icon" className="text-white hover:bg-sage-600">
+                <Button 
+                  variant="ghost" 
+                  size="icon" 
+                  className="text-white hover:bg-sage-600"
+                  onClick={handleDocumentClick}
+                >
                   <FileText size={20} />
                 </Button>
               </TooltipTrigger>
@@ -114,7 +125,10 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
                   className="text-white hover:bg-sage-600 relative"
                   onClick={handleMachineHealthClick}
                 >
-                  <Heart size={20} className="text-red-500 fill-red-500 border-2 border-dashed border-red-400 rounded-full p-1" />
+                  <Heart 
+                    size={20} 
+                    className={`text-red-500 ${isHeartFilled ? 'fill-red-500' : ''}`} 
+                  />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
