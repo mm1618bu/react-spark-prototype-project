@@ -1,11 +1,11 @@
+
 import React, { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarDays, Clock, Wrench, AlertTriangle } from 'lucide-react';
-import { format, isSameDay, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { CalendarDays, Clock, Wrench } from 'lucide-react';
+import { format, isSameDay } from 'date-fns';
 
 interface MaintenanceTask {
   id: string;
@@ -104,7 +104,11 @@ const MaintenanceSchedulePage = () => {
 
   return (
     <div className="min-h-screen flex w-full">
-      <Sidebar />
+      <Sidebar 
+        maintenanceTasks={maintenanceTasks}
+        selectedDate={selectedDate}
+        onDateSelect={setSelectedDate}
+      />
       
       <div className="flex-1 flex flex-col bg-gray-50">
         <div className="bg-white border-b border-gray-200 px-6 py-4">

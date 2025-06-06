@@ -5,11 +5,30 @@ import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Calendar } from './ui/calendar';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { isSameDay } from 'date-fns';
 
-export const Sidebar = () => {
+interface MaintenanceTask {
+  id: string;
+  machineId: string;
+  machineName: string;
+  taskType: string;
+  description: string;
+  scheduledDate: Date;
+  duration: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'scheduled' | 'in-progress' | 'completed' | 'overdue';
+  assignedTechnician?: string;
+}
+
+interface SidebarProps {
+  maintenanceTasks?: MaintenanceTask[];
+  selectedDate?: Date;
+  onDateSelect?: (date: Date) => void;
+}
+
+export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: SidebarProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
   const handleSettingsClick = () => {
@@ -39,6 +58,13 @@ export const Sidebar = () => {
       setShowCalendar(true); // Show calendar when navigating to the page
     }
   };
+
+  // Get dates that have maintenance tasks
+  const getDatesWithTasks = () => {
+    return maintenanceTasks.map(task => task.scheduledDate);
+  };
+
+  const datesWithTasks = getDatesWithTasks();
 
   return (
     <div className="h-screen bg-sage-500 flex text-white relative">
@@ -151,14 +177,51 @@ export const Sidebar = () => {
 
       {/* Calendar panel - only show on maintenance schedule page */}
       {showCalendar && location.pathname === '/maintenance-schedule' && (
-        <div className="w-[300px] bg-white text-black p-4 shadow-lg border-l border-gray-200">
+        <div className="w-[320px] bg-white text-black p-4 shadow-lg border-l border-gray-200">
           <h3 className="font-semibold mb-4 text-gray-900">Maintenance Calendar</h3>
           <Calendar
             mode="single"
             selected={selectedDate}
-            onSelect={(date) => date && setSelectedDate(date)}
+            onSelect={(date) => {
+              if (date && onDateSelect) {
+                onDateSelect(date);
+              }
+            }}
             className="rounded-md border w-full"
+            modifiers={{
+              hasTask: datesWithTasks,
+            }}
+            modifiersStyles={{
+              hasTask: {
+                backgroundColor: '#10b981',
+                color: 'white',
+                fontWeight: 'bold',
+              },
+            }}
           />
+          
+          {/* Show tasks for selected date */}
+          {selectedDate && (
+            <div className="mt-4">
+              <h4 className="font-medium text-gray-900 mb-2">
+                Tasks for {selectedDate.toLocaleDateString()}
+              </h4>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {maintenanceTasks
+                  .filter(task => isSameDay(task.scheduledDate, selectedDate))
+                  .map(task => (
+                    <div key={task.id} className="text-xs bg-gray-50 p-2 rounded">
+                      <div className="font-medium">{task.machineName}</div>
+                      <div className="text-gray-600">{task.taskType}</div>
+                      <div className="text-gray-500">{task.duration}h</div>
+                    </div>
+                  ))}
+                {maintenanceTasks.filter(task => isSameDay(task.scheduledDate, selectedDate)).length === 0 && (
+                  <p className="text-gray-500 text-xs">No tasks scheduled</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
