@@ -1,5 +1,6 @@
+
 import React from 'react';
-import { FileText, Settings, Info, BookmarkIcon, Heart } from 'lucide-react';
+import { FileText, Settings, Info, BookmarkIcon, Heart, CalendarDays } from 'lucide-react';
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,11 @@ export const Sidebar = () => {
   const handleMachineHealthClick = () => {
     console.log('Heart icon clicked - navigating to /machine-health');
     navigate('/machine-health');
+  };
+
+  const handleMaintenanceScheduleClick = () => {
+    console.log('Calendar icon clicked - navigating to /maintenance-schedule');
+    navigate('/maintenance-schedule');
   };
 
   return (
@@ -72,6 +78,24 @@ export const Sidebar = () => {
             </TooltipTrigger>
             <TooltipContent side="right">
               <p>Machine Health</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="text-white hover:bg-sage-600"
+                onClick={handleMaintenanceScheduleClick}
+              >
+                <CalendarDays size={20} />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="right">
+              <p>Maintenance Schedule</p>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
