@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -23,7 +22,7 @@ interface MaintenanceTask {
 
 const MaintenanceSchedulePage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('calendar');
+  const [viewMode, setViewMode] = useState<'calendar' | 'list'>('list');
 
   // Sample maintenance data
   const maintenanceTasks: MaintenanceTask[] = [
@@ -139,33 +138,8 @@ const MaintenanceSchedulePage = () => {
 
         <div className="flex-1 p-6">
           {viewMode === 'calendar' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Calendar */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Maintenance Calendar</CardTitle>
-                </CardHeader>
-                <CardContent className="flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => date && setSelectedDate(date)}
-                    className="rounded-md border w-full"
-                    modifiers={{
-                      hasTasks: (date) => getTasksForDate(date).length > 0
-                    }}
-                    modifiersStyles={{
-                      hasTasks: { 
-                        backgroundColor: '#10b981', 
-                        color: 'white',
-                        fontWeight: 'bold'
-                      }
-                    }}
-                  />
-                </CardContent>
-              </Card>
-
-              {/* Selected Date Tasks */}
+            <div className="grid grid-cols-1 gap-6">
+              {/* Selected Date Tasks - now takes full width since calendar is in sidebar */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
