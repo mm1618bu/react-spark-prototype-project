@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { FileText, Settings, Info, BookmarkIcon, Heart, CalendarDays } from 'lucide-react';
 import { Button } from './ui/button';
@@ -127,7 +126,7 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
                 >
                   <Heart 
                     size={20} 
-                    className={`text-red-500 ${isHeartFilled ? 'fill-red-500' : ''}`} 
+                    className={`text-white font-bold ${isHeartFilled ? 'fill-white' : ''}`} 
                   />
                 </Button>
               </TooltipTrigger>
