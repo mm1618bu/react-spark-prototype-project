@@ -4,10 +4,11 @@ import { FileText, Settings, Info, BookmarkIcon, Heart, CalendarDays } from 'luc
 import { Button } from './ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import { Calendar } from './ui/calendar';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export const Sidebar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [showCalendar, setShowCalendar] = useState(false);
 
@@ -25,9 +26,18 @@ export const Sidebar = () => {
   };
 
   const handleMaintenanceScheduleClick = () => {
-    console.log('Calendar icon clicked - navigating to /maintenance-schedule');
-    navigate('/maintenance-schedule');
-    setShowCalendar(!showCalendar);
+    console.log('Calendar icon clicked');
+    
+    // If we're already on the maintenance schedule page, just toggle the calendar
+    if (location.pathname === '/maintenance-schedule') {
+      console.log('Already on maintenance schedule page, toggling calendar');
+      setShowCalendar(!showCalendar);
+    } else {
+      // If we're on a different page, navigate to maintenance schedule
+      console.log('Navigating to /maintenance-schedule');
+      navigate('/maintenance-schedule');
+      setShowCalendar(true); // Show calendar when navigating to the page
+    }
   };
 
   return (
@@ -94,7 +104,7 @@ export const Sidebar = () => {
                 <Button 
                   variant="ghost" 
                   size="icon" 
-                  className={`text-white hover:bg-sage-600 ${showCalendar ? 'bg-sage-600' : ''}`}
+                  className={`text-white hover:bg-sage-600 ${showCalendar && location.pathname === '/maintenance-schedule' ? 'bg-sage-600' : ''}`}
                   onClick={handleMaintenanceScheduleClick}
                 >
                   <CalendarDays size={20} />
@@ -139,8 +149,8 @@ export const Sidebar = () => {
         </div>
       </div>
 
-      {/* Calendar panel */}
-      {showCalendar && (
+      {/* Calendar panel - only show on maintenance schedule page */}
+      {showCalendar && location.pathname === '/maintenance-schedule' && (
         <div className="w-[300px] bg-white text-black p-4 shadow-lg border-l border-gray-200">
           <h3 className="font-semibold mb-4 text-gray-900">Maintenance Calendar</h3>
           <Calendar
