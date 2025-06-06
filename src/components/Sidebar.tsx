@@ -114,9 +114,7 @@ export const Sidebar = ({ maintenanceTasks = [], selectedDate, onDateSelect }: S
                   className="text-white hover:bg-sage-600 relative"
                   onClick={handleMachineHealthClick}
                 >
-                  <Heart size={20} className="text-red-500 fill-red-500" />
-                  {/* Red notification dot */}
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-sage-500"></div>
+                  <Heart size={20} className="text-red-500 fill-red-500 border-2 border-dashed border-red-400 rounded-full p-1" />
                 </Button>
               </TooltipTrigger>
               <TooltipContent side="right">
