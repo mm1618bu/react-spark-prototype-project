@@ -1,9 +1,9 @@
-
 import React, { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
 import { CalendarDays, Clock, Wrench } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 
@@ -100,6 +100,12 @@ const MaintenanceSchedulePage = () => {
     }
   };
 
+  // Get dates that have maintenance tasks for the main calendar
+  const getDatesWithTasks = () => {
+    return maintenanceTasks.map(task => task.scheduledDate);
+  };
+
+  const datesWithTasks = getDatesWithTasks();
   const selectedDateTasks = getTasksForDate(selectedDate);
 
   return (
@@ -142,8 +148,37 @@ const MaintenanceSchedulePage = () => {
 
         <div className="flex-1 p-6">
           {viewMode === 'calendar' ? (
-            <div className="grid grid-cols-1 gap-6">
-              {/* Selected Date Tasks - now takes full width since calendar is in sidebar */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Main Calendar */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Maintenance Calendar</CardTitle>
+                </CardHeader>
+                <CardContent className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                      }
+                    }}
+                    className="rounded-md border"
+                    modifiers={{
+                      hasTask: datesWithTasks,
+                    }}
+                    modifiersStyles={{
+                      hasTask: {
+                        backgroundColor: '#10b981',
+                        color: 'white',
+                        fontWeight: 'bold',
+                      },
+                    }}
+                  />
+                </CardContent>
+              </Card>
+
+              {/* Selected Date Tasks */}
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2">
