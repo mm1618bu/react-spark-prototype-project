@@ -150,7 +150,7 @@ const MaintenanceSchedulePage = () => {
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => date && setSelectedDate(date)}
-                    className="rounded-md border scale-150"
+                    className="rounded-md border w-full"
                     modifiers={{
                       hasTasks: (date) => getTasksForDate(date).length > 0
                     }}
