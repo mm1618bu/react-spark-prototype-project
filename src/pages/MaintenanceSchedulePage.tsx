@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -139,9 +138,9 @@ const MaintenanceSchedulePage = () => {
 
         <div className="flex-1 p-6">
           {viewMode === 'calendar' ? (
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              {/* Calendar */}
-              <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+              {/* Calendar - Now takes 3 columns on xl screens */}
+              <div className="xl:col-span-3">
                 <Card>
                   <CardHeader>
                     <CardTitle>Maintenance Calendar</CardTitle>
@@ -151,7 +150,7 @@ const MaintenanceSchedulePage = () => {
                       mode="single"
                       selected={selectedDate}
                       onSelect={(date) => date && setSelectedDate(date)}
-                      className="rounded-md border"
+                      className="rounded-md border w-full"
                       modifiers={{
                         hasTasks: (date) => getTasksForDate(date).length > 0
                       }}
@@ -167,8 +166,8 @@ const MaintenanceSchedulePage = () => {
                 </Card>
               </div>
 
-              {/* Selected Date Tasks */}
-              <div>
+              {/* Selected Date Tasks - Now takes 1 column on xl screens */}
+              <div className="xl:col-span-1">
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center space-x-2">
