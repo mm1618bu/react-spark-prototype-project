@@ -124,9 +124,16 @@ export async function fetchInspectionData(filters?: InspectionFilters): Promise<
       console.log('🔍 First single-value data point:', data.vibration_data?.[0]);
     }
     
-    console.log('⚠️ Anomalies:', data.anomalies?.length || 0);
+    // Fix the anomalies logging - ensure we handle both array and undefined cases
+    const anomaliesArray = Array.isArray(data.anomalies) ? data.anomalies : [];
+    console.log('⚠️ Anomalies count:', anomaliesArray.length);
+    console.log('⚠️ Anomalies data:', anomaliesArray);
     
-    return data;
+    // Ensure anomalies is always an array in the returned data
+    return {
+      ...data,
+      anomalies: anomaliesArray
+    };
   } catch (error) {
     console.error('❌ Error fetching inspection data:', error);
     throw error;
