@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -8,27 +9,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Refe
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
-import { sendQuery, fetchInspectionData, InspectionFilters } from '@/services/apiService';
+import { sendQuery, fetchInspectionData, InspectionFilters, GraphData } from '@/services/apiService';
 import ReactMarkdown from 'react-markdown';
-
-interface VibrationDataPoint {
-  timestamp: string;
-  value: number;
-}
-
-interface Anomaly {
-  start: string;
-  end: string;
-}
-
-interface GraphData {
-  title: string;
-  x_label: string;
-  y_label: string;
-  x_tick_labels: string[];
-  vibration_data: VibrationDataPoint[];
-  anomalies: Anomaly[];
-}
 
 interface Message {
   role: 'user' | 'system';
@@ -49,7 +31,6 @@ const InspectionPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const query = searchParams.get('q');
 
   // Sample prompts for the inspection page
   const samplePrompts = [
@@ -99,12 +80,6 @@ const InspectionPage = () => {
   const handleBackClick = () => {
     console.log('Back button clicked, navigating to /machine-health');
     navigate('/machine-health');
-  };
-
-  const handleFiltersChange = (newFilters: InspectionFilters) => {
-    console.log('Filters changed:', newFilters);
-    setFilters(newFilters);
-    fetchGraphData(newFilters);
   };
 
   const handleMessageSent = async (message: string) => {
@@ -170,33 +145,68 @@ const InspectionPage = () => {
     setIsGraphExpanded(!isGraphExpanded);
   };
 
-  // Transform data for recharts with proper time-based positioning
-  const chartData = graphData?.vibration_data?.map((point) => {
-    const date = new Date(point.timestamp);
-    return {
-      timestamp: point.timestamp,
-      value: point.value,
-      timeValue: date.getTime(), // Use milliseconds for proper time positioning
-      hourLabel: date.toLocaleDateString('en-US', { 
-        month: 'short', 
-        day: 'numeric' 
-      }) + ' ' + date.toLocaleTimeString('en-US', {
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }),
-    };
-  }).sort((a, b) => a.timeValue - b.timeValue) || [];
+  // Transform data for recharts based on data type
+  const chartData = React.useMemo(() => {
+    if (!graphData) return [];
+
+    if (graphData.data_type === 'multi' && graphData.multi_value_data) {
+      return graphData.multi_value_data.map((point) => {
+        const date = new Date(point.timestamp);
+        return {
+          timestamp: point.timestamp,
+          value1: point.value1,
+          value2: point.value2,
+          value3: point.value3,
+          timeValue: date.getTime(),
+          hourLabel: date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          }) + ' ' + date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }),
+        };
+      }).sort((a, b) => a.timeValue - b.timeValue);
+    } else if (graphData.vibration_data) {
+      return graphData.vibration_data.map((point) => {
+        const date = new Date(point.timestamp);
+        return {
+          timestamp: point.timestamp,
+          value: point.value,
+          timeValue: date.getTime(),
+          hourLabel: date.toLocaleDateString('en-US', { 
+            month: 'short', 
+            day: 'numeric' 
+          }) + ' ' + date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit',
+            hour12: false
+          }),
+        };
+      }).sort((a, b) => a.timeValue - b.timeValue);
+    }
+    return [];
+  }, [graphData]);
 
   // Calculate proper domain for axes
-  const yValues = chartData.map(d => d.value);
-  const yMin = Math.min(...yValues);
-  const yMax = Math.max(...yValues);
+  const isMultiValue = graphData?.data_type === 'multi';
+  
+  const yValues = React.useMemo(() => {
+    if (isMultiValue) {
+      return chartData.flatMap(d => [d.value1, d.value2, d.value3].filter(v => v !== undefined));
+    } else {
+      return chartData.map(d => d.value).filter(v => v !== undefined);
+    }
+  }, [chartData, isMultiValue]);
+
+  const yMin = yValues.length > 0 ? Math.min(...yValues) : 0;
+  const yMax = yValues.length > 0 ? Math.max(...yValues) : 100;
   const yPadding = (yMax - yMin) * 0.1; // 10% padding
 
   const timeValues = chartData.map(d => d.timeValue);
-  const timeMin = Math.min(...timeValues);
-  const timeMax = Math.max(...timeValues);
+  const timeMin = timeValues.length > 0 ? Math.min(...timeValues) : 0;
+  const timeMax = timeValues.length > 0 ? Math.max(...timeValues) : Date.now();
 
   return (
     <div className="flex h-screen overflow-hidden">
@@ -312,14 +322,49 @@ const InspectionPage = () => {
                               }}
                               tick={{ fontSize: !isGraphExpanded ? 9 : 11 }}
                             />
-                            <Line 
-                              type="monotone" 
-                              dataKey="value" 
-                              stroke="#2563eb" 
-                              strokeWidth={!isGraphExpanded ? 1 : 2}
-                              dot={false}
-                              connectNulls={false}
-                            />
+                            
+                            {/* Render lines based on data type */}
+                            {isMultiValue ? (
+                              <>
+                                <Line 
+                                  type="monotone" 
+                                  dataKey="value1" 
+                                  stroke="#2563eb" 
+                                  strokeWidth={!isGraphExpanded ? 1 : 2}
+                                  dot={false}
+                                  connectNulls={false}
+                                  name="Value 1"
+                                />
+                                <Line 
+                                  type="monotone" 
+                                  dataKey="value2" 
+                                  stroke="#dc2626" 
+                                  strokeWidth={!isGraphExpanded ? 1 : 2}
+                                  dot={false}
+                                  connectNulls={false}
+                                  name="Value 2"
+                                />
+                                <Line 
+                                  type="monotone" 
+                                  dataKey="value3" 
+                                  stroke="#16a34a" 
+                                  strokeWidth={!isGraphExpanded ? 1 : 2}
+                                  dot={false}
+                                  connectNulls={false}
+                                  name="Value 3"
+                                />
+                              </>
+                            ) : (
+                              <Line 
+                                type="monotone" 
+                                dataKey="value" 
+                                stroke="#2563eb" 
+                                strokeWidth={!isGraphExpanded ? 1 : 2}
+                                dot={false}
+                                connectNulls={false}
+                              />
+                            )}
+                            
                             {graphData.anomalies?.map((anomaly, index) => {
                               const startTime = new Date(anomaly.start).getTime();
                               const endTime = new Date(anomaly.end).getTime();
@@ -351,6 +396,24 @@ const InspectionPage = () => {
                           !isGraphExpanded ? 'max-h-0 opacity-0 mt-0' : 'max-h-48 opacity-100 mt-4'
                         }`}
                       >
+                        {/* Legend for multi-value charts */}
+                        {isMultiValue && isGraphExpanded && (
+                          <div className="mb-4 flex gap-6 text-sm">
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-0.5 bg-blue-600"></div>
+                              <span>Value 1</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-0.5 bg-red-600"></div>
+                              <span>Value 2</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-0.5 bg-green-600"></div>
+                              <span>Value 3</span>
+                            </div>
+                          </div>
+                        )}
+
                         {graphData.anomalies && graphData.anomalies.length > 0 && (
                           <div>
                             <h3 className="text-md font-semibold mb-2">Detected Anomalies</h3>

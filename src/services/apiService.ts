@@ -14,6 +14,34 @@ export interface InspectionFilters {
   sensorType?: string;
 }
 
+export interface MultiValueDataPoint {
+  timestamp: string;
+  value1: number;
+  value2: number;
+  value3: number;
+}
+
+export interface SingleValueDataPoint {
+  timestamp: string;
+  value: number;
+}
+
+export interface Anomaly {
+  start: string;
+  end: string;
+}
+
+export interface GraphData {
+  title: string;
+  x_label: string;
+  y_label: string;
+  x_tick_labels: string[];
+  vibration_data?: SingleValueDataPoint[];
+  multi_value_data?: MultiValueDataPoint[];
+  anomalies: Anomaly[];
+  data_type: 'single' | 'multi';
+}
+
 export async function sendQuery(query: string, source?: string): Promise<QueryResponse> {
   console.log(`sendQuery called with query: ${query}`);
   console.log(`Source: ${source || 'unknown'}`);
@@ -53,7 +81,7 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
   }
 }
 
-export async function fetchInspectionData(filters?: InspectionFilters): Promise<any> {
+export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('fetchInspectionData called with filters:', filters);
   
   // Build query parameters
