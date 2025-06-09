@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -208,6 +207,11 @@ const InspectionPage = () => {
   const timeMin = timeValues.length > 0 ? Math.min(...timeValues) : 0;
   const timeMax = timeValues.length > 0 ? Math.max(...timeValues) : Date.now();
 
+  // Custom Y-axis formatter to round values
+  const formatYAxisTick = (value: number) => {
+    return value.toFixed(1);
+  };
+
   return (
     <div className="flex h-screen overflow-hidden">
       <Sidebar />
@@ -314,6 +318,7 @@ const InspectionPage = () => {
                             />
                             <YAxis 
                               domain={[yMin - yPadding, yMax + yPadding]}
+                              tickFormatter={formatYAxisTick}
                               label={{ 
                                 value: graphData.y_label, 
                                 angle: -90, 
