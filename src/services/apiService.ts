@@ -9,6 +9,11 @@ export interface QueryResponse {
   format?: 'markdown' | 'text';
 }
 
+export interface InspectionFilters {
+  machineName?: string;
+  sensorType?: string;
+}
+
 export async function sendQuery(query: string, source?: string): Promise<QueryResponse> {
   console.log(`sendQuery called with query: ${query}`);
   console.log(`Source: ${source || 'unknown'}`);
@@ -44,6 +49,43 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
     };
   } catch (error) {
     console.error('Error querying the API:', error);
+    throw error;
+  }
+}
+
+export async function fetchInspectionData(filters?: InspectionFilters): Promise<any> {
+  console.log('fetchInspectionData called with filters:', filters);
+  
+  // Build query parameters
+  const queryParams = new URLSearchParams();
+  if (filters?.machineName) {
+    queryParams.append('machine_name', filters.machineName);
+  }
+  if (filters?.sensorType) {
+    queryParams.append('sensor_type', filters.sensorType);
+  }
+  
+  const url = `${API_URL}/inspection${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  console.log(`Sending GET request to: ${url}`);
+
+  try {
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`Response status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Inspection data:', data);
+    return data;
+  } catch (error) {
+    console.error('Error fetching inspection data:', error);
     throw error;
   }
 }

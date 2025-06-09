@@ -8,7 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Refe
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
-import { sendQuery } from '@/services/apiService';
+import { sendQuery, fetchInspectionData, InspectionFilters } from '@/services/apiService';
 import ReactMarkdown from 'react-markdown';
 
 interface VibrationDataPoint {
@@ -45,6 +45,7 @@ const InspectionPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isQueryLoading, setIsQueryLoading] = useState(false);
   const [isChatMode, setIsChatMode] = useState(false);
+  const [filters, setFilters] = useState<InspectionFilters>({});
   const { toast } = useToast();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -58,22 +59,11 @@ const InspectionPage = () => {
     "How severe are these detected anomalies?"
   ];
 
-  const fetchGraphData = async () => {
+  const fetchGraphData = async (currentFilters?: InspectionFilters) => {
     setIsLoading(true);
     setError(null);
     try {
-      const response = await fetch('http://localhost:5001/inspection', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const data = await response.json();
+      const data = await fetchInspectionData(currentFilters || filters);
       setGraphData(data);
     } catch (error) {
       console.error('Error fetching graph data:', error);
@@ -95,6 +85,11 @@ const InspectionPage = () => {
   const handleBackClick = () => {
     console.log('Back button clicked, navigating to /machine-health');
     navigate('/machine-health');
+  };
+
+  const handleFiltersChange = (newFilters: InspectionFilters) => {
+    setFilters(newFilters);
+    fetchGraphData(newFilters);
   };
 
   const handleMessageSent = async (message: string) => {
@@ -206,9 +201,36 @@ const InspectionPage = () => {
                   Back to Machine Health
                 </Button>
                 <h1 className="text-2xl font-bold text-gray-900">Anomaly Inspection</h1>
-                <Button onClick={fetchGraphData} disabled={isLoading}>
+                <Button onClick={() => fetchGraphData()} disabled={isLoading}>
                   {isLoading ? 'Refreshing...' : 'Refresh Data'}
                 </Button>
+              </div>
+              
+              {/* Filter controls */}
+              <div className="mb-6 p-4 bg-white rounded-lg border">
+                <h3 className="text-sm font-medium mb-3">Filters</h3>
+                <div className="flex gap-4">
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Machine Name</label>
+                    <input
+                      type="text"
+                      placeholder="Enter machine name"
+                      value={filters.machineName || ''}
+                      onChange={(e) => handleFiltersChange({ ...filters, machineName: e.target.value })}
+                      className="px-3 py-2 border rounded-md text-sm w-48"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Sensor Type</label>
+                    <input
+                      type="text"
+                      placeholder="Enter sensor type"
+                      value={filters.sensorType || ''}
+                      onChange={(e) => handleFiltersChange({ ...filters, sensorType: e.target.value })}
+                      className="px-3 py-2 border rounded-md text-sm w-48"
+                    />
+                  </div>
+                </div>
               </div>
               
               {isLoading ? (
@@ -218,7 +240,7 @@ const InspectionPage = () => {
               ) : error ? (
                 <div className="text-center py-8">
                   <p className="text-red-500 mb-4">{error}</p>
-                  <Button onClick={fetchGraphData}>Try Again</Button>
+                  <Button onClick={() => fetchGraphData()}>Try Again</Button>
                 </div>
               ) : graphData ? (
                 <div className="space-y-4">
