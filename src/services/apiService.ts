@@ -84,45 +84,7 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('fetchInspectionData called with filters:', filters);
   
-  // Check if this is a current sensor type request
-  if (filters?.sensorType?.toLowerCase() === 'current') {
-    console.log('Returning hardcoded current sensor data');
-    
-    // Generate sample multi-value data for current sensor
-    const now = new Date();
-    const multiValueData: MultiValueDataPoint[] = [];
-    
-    for (let i = 0; i < 50; i++) {
-      const timestamp = new Date(now.getTime() - (49 - i) * 30000); // 30 second intervals
-      multiValueData.push({
-        timestamp: timestamp.toISOString(),
-        value1: 15 + Math.sin(i * 0.3) * 5 + Math.random() * 2, // Current Phase A
-        value2: 14 + Math.cos(i * 0.25) * 4 + Math.random() * 2, // Current Phase B  
-        value3: 16 + Math.sin(i * 0.35 + 1) * 3 + Math.random() * 2, // Current Phase C
-      });
-    }
-    
-    return {
-      title: `${filters.machineName || 'Machine'} - Current Sensor Data`,
-      x_label: 'Time',
-      y_label: 'Current (A)',
-      x_tick_labels: [],
-      multi_value_data: multiValueData,
-      data_type: 'multi',
-      anomalies: [
-        {
-          start: new Date(now.getTime() - 600000).toISOString(), // 10 minutes ago
-          end: new Date(now.getTime() - 480000).toISOString(), // 8 minutes ago
-        },
-        {
-          start: new Date(now.getTime() - 180000).toISOString(), // 3 minutes ago
-          end: new Date(now.getTime() - 120000).toISOString(), // 2 minutes ago
-        }
-      ]
-    };
-  }
-  
-  // Build query parameters for regular API call
+  // Build query parameters for API call
   const queryParams = new URLSearchParams();
   if (filters?.machineName) {
     queryParams.append('machine_name', filters.machineName);
