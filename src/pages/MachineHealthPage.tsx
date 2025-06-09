@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -76,7 +75,9 @@ const MachineHealthPage = () => {
       title: "Inspect Anomaly",
       description: `Inspecting anomaly for ${machine.machine}`,
     });
-    navigate('/inspection');
+    
+    // Navigate to inspection page with machine name and sensor type as URL parameters
+    navigate(`/inspection?machineName=${encodeURIComponent(machine.machine)}&sensorType=${encodeURIComponent(machine.sensorType)}`);
   };
 
   console.log('Current state - machines:', machines, 'isLoading:', isLoading, 'error:', error);
