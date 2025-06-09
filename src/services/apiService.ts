@@ -83,6 +83,8 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('fetchInspectionData called with filters:', filters);
+  console.log('Machine name:', filters?.machineName);
+  console.log('Sensor type:', filters?.sensorType);
   
   // Build query parameters for API call
   const queryParams = new URLSearchParams();
@@ -94,7 +96,7 @@ export async function fetchInspectionData(filters?: InspectionFilters): Promise<
   }
   
   const url = `${API_URL}/inspection${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  console.log(`Sending GET request to: ${url}`);
+  console.log(`🚀 Sending GET request to: ${url}`);
 
   try {
     const response = await fetch(url, {
@@ -104,17 +106,29 @@ export async function fetchInspectionData(filters?: InspectionFilters): Promise<
       },
     });
 
-    console.log(`Response status: ${response.status}`);
+    console.log(`📡 Response status: ${response.status}`);
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
     }
 
     const data = await response.json();
-    console.log('Inspection data:', data);
+    console.log('📊 Raw backend response:', JSON.stringify(data, null, 2));
+    console.log('📈 Data type received:', data.data_type);
+    console.log('📋 Title:', data.title);
+    
+    if (data.data_type === 'multi') {
+      console.log('🔢 Multi-value data points:', data.multi_value_data?.length || 0);
+      console.log('🔍 First multi-value data point:', data.multi_value_data?.[0]);
+    } else {
+      console.log('📈 Single-value data points:', data.vibration_data?.length || 0);
+      console.log('🔍 First single-value data point:', data.vibration_data?.[0]);
+    }
+    
+    console.log('⚠️ Anomalies:', data.anomalies?.length || 0);
     
     return data;
   } catch (error) {
-    console.error('Error fetching inspection data:', error);
+    console.error('❌ Error fetching inspection data:', error);
     throw error;
   }
 }
