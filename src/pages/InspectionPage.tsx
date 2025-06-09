@@ -221,33 +221,6 @@ const InspectionPage = () => {
                 </Button>
               </div>
               
-              {/* Filter controls */}
-              <div className="mb-6 p-4 bg-white rounded-lg border">
-                <h3 className="text-sm font-medium mb-3">Filters</h3>
-                <div className="flex gap-4">
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Machine Name</label>
-                    <input
-                      type="text"
-                      placeholder="Enter machine name"
-                      value={filters.machineName || ''}
-                      onChange={(e) => handleFiltersChange({ ...filters, machineName: e.target.value })}
-                      className="px-3 py-2 border rounded-md text-sm w-48"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-xs text-gray-600 mb-1">Sensor Type</label>
-                    <input
-                      type="text"
-                      placeholder="Enter sensor type"
-                      value={filters.sensorType || ''}
-                      onChange={(e) => handleFiltersChange({ ...filters, sensorType: e.target.value })}
-                      className="px-3 py-2 border rounded-md text-sm w-48"
-                    />
-                  </div>
-                </div>
-              </div>
-              
               {isLoading ? (
                 <div className="text-center py-8">
                   <p className="text-gray-500">Loading graph data...</p>
