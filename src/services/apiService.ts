@@ -84,6 +84,10 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('fetchInspectionData called with filters:', filters);
   
+  // Determine which endpoint to use based on sensor type
+  const isCurrent = filters?.sensorType?.toLowerCase() === 'current';
+  const endpoint = isCurrent ? '/inspection-multi' : '/inspection';
+  
   // Build query parameters
   const queryParams = new URLSearchParams();
   if (filters?.machineName) {
@@ -93,7 +97,7 @@ export async function fetchInspectionData(filters?: InspectionFilters): Promise<
     queryParams.append('sensor_type', filters.sensorType);
   }
   
-  const url = `${API_URL}/inspection${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+  const url = `${API_URL}${endpoint}${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
   console.log(`Sending GET request to: ${url}`);
 
   try {
@@ -111,6 +115,14 @@ export async function fetchInspectionData(filters?: InspectionFilters): Promise<
 
     const data = await response.json();
     console.log('Inspection data:', data);
+    
+    // Ensure the data type is set correctly based on the endpoint used
+    if (isCurrent && !data.data_type) {
+      data.data_type = 'multi';
+    } else if (!isCurrent && !data.data_type) {
+      data.data_type = 'single';
+    }
+    
     return data;
   } catch (error) {
     console.error('Error fetching inspection data:', error);
