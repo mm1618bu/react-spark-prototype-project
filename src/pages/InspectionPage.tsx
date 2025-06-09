@@ -60,6 +60,7 @@ const InspectionPage = () => {
   ];
 
   const fetchGraphData = async (currentFilters?: InspectionFilters) => {
+    console.log('Fetching graph data with filters:', currentFilters || filters);
     setIsLoading(true);
     setError(null);
     try {
@@ -79,8 +80,21 @@ const InspectionPage = () => {
   };
 
   useEffect(() => {
-    fetchGraphData();
-  }, []);
+    // Read URL parameters and set initial filters
+    const machineNameParam = searchParams.get('machineName');
+    const sensorTypeParam = searchParams.get('sensorType');
+    
+    console.log('URL parameters:', { machineNameParam, sensorTypeParam });
+    
+    const initialFilters: InspectionFilters = {
+      ...(machineNameParam && { machineName: machineNameParam }),
+      ...(sensorTypeParam && { sensorType: sensorTypeParam })
+    };
+    
+    console.log('Setting initial filters:', initialFilters);
+    setFilters(initialFilters);
+    fetchGraphData(initialFilters);
+  }, [searchParams]);
 
   const handleBackClick = () => {
     console.log('Back button clicked, navigating to /machine-health');
@@ -88,6 +102,7 @@ const InspectionPage = () => {
   };
 
   const handleFiltersChange = (newFilters: InspectionFilters) => {
+    console.log('Filters changed:', newFilters);
     setFilters(newFilters);
     fetchGraphData(newFilters);
   };
