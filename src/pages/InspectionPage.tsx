@@ -62,9 +62,10 @@ const InspectionPage = () => {
   useEffect(() => {
     // Read URL parameters and set initial filters
     const machineIdParam = searchParams.get('machineId');
+    const machineNameParam = searchParams.get('machineName');
     const sensorTypeParam = searchParams.get('sensorType');
     
-    console.log('URL parameters:', { machineIdParam, sensorTypeParam });
+    console.log('URL parameters:', { machineIdParam, machineNameParam, sensorTypeParam });
     
     const initialFilters: InspectionFilters = {
       ...(machineIdParam && { machineId: machineIdParam }),
@@ -229,7 +230,14 @@ const InspectionPage = () => {
                   <ArrowLeft size={16} />
                   Back to Machine Health
                 </Button>
-                <h1 className="text-2xl font-bold text-gray-900">Anomaly Inspection</h1>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Anomaly Inspection
+                  {searchParams.get('machineName') && (
+                    <span className="text-lg font-normal text-gray-600 ml-2">
+                      - {searchParams.get('machineName')}
+                    </span>
+                  )}
+                </h1>
                 <Button onClick={() => fetchGraphData()} disabled={isLoading}>
                   {isLoading ? 'Refreshing...' : 'Refresh Data'}
                 </Button>
