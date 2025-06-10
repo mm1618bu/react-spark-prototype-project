@@ -1,4 +1,3 @@
-
 // API service for communicating with the Python backend
 
 const API_URL = 'http://localhost:5001';
@@ -43,16 +42,23 @@ export interface GraphData {
   data_type: 'single' | 'multi';
 }
 
-export async function sendQuery(query: string, source?: string): Promise<QueryResponse> {
+export async function sendQuery(query: string, source?: string, machineId?: string): Promise<QueryResponse> {
   console.log(`sendQuery called with query: ${query}`);
   console.log(`Source: ${source || 'unknown'}`);
+  console.log(`Machine ID: ${machineId || 'not provided'}`);
   console.log(`Sending POST request to: ${API_URL}/query`);
 
-  const payload = { 
+  const payload: any = { 
     query,
     source: source || 'unknown',
     responseFormat: 'markdown' // Request markdown format from backend
   };
+  
+  // Add machine_id to payload if we're on anomaly inspection page and have machine data
+  if (source === 'anomaly' && machineId) {
+    payload.machine_id = machineId;
+    console.log('✅ Added machine_id to query payload:', machineId);
+  }
   
   console.log('Request payload:', JSON.stringify(payload, null, 2));
 

@@ -97,7 +97,8 @@ const InspectionPage = () => {
     }
     
     try {
-      const response = await sendQuery(message, 'anomaly');
+      // Pass machine_id when available for anomaly inspection queries
+      const response = await sendQuery(message, 'anomaly', filters.machineId);
       console.log('Query response:', response);
       
       // Add system response
