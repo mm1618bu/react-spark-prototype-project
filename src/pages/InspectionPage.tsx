@@ -69,6 +69,7 @@ const InspectionPage = () => {
     
     const initialFilters: InspectionFilters = {
       ...(machineIdParam && { machineId: machineIdParam }),
+      ...(machineNameParam && { machineName: machineNameParam }),
       ...(sensorTypeParam && { sensorType: sensorTypeParam })
     };
     
