@@ -1,4 +1,3 @@
-
 // API service for communicating with the Python backend
 
 const API_URL = 'http://localhost:5001';
@@ -82,21 +81,28 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 }
 
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
-  console.log('fetchInspectionData called with filters:', filters);
-  console.log('Machine ID:', filters?.machineId);
-  console.log('Sensor type:', filters?.sensorType);
+  console.log('🔧 fetchInspectionData called with filters:', filters);
+  console.log('🏭 Machine ID:', filters?.machineId);
+  console.log('📡 Sensor type:', filters?.sensorType);
   
   // Build query parameters for API call
   const queryParams = new URLSearchParams();
   if (filters?.machineId) {
     queryParams.append('machine_id', filters.machineId);
+    console.log('✅ Added machine_id to query params:', filters.machineId);
+  } else {
+    console.log('❌ No machine_id provided in filters');
   }
   if (filters?.sensorType) {
     queryParams.append('sensor_type', filters.sensorType);
+    console.log('✅ Added sensor_type to query params:', filters.sensorType);
+  } else {
+    console.log('❌ No sensor_type provided in filters');
   }
   
   const url = `${API_URL}/inspection${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
-  console.log(`🚀 Sending GET request to: ${url}`);
+  console.log(`🚀 Final URL being called: ${url}`);
+  console.log(`📋 Query params string: ${queryParams.toString()}`);
 
   try {
     const response = await fetch(url, {
