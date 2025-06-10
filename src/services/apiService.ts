@@ -10,7 +10,7 @@ export interface QueryResponse {
 }
 
 export interface InspectionFilters {
-  machineName?: string;
+  machineId?: string;
   sensorType?: string;
 }
 
@@ -83,13 +83,13 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('fetchInspectionData called with filters:', filters);
-  console.log('Machine name:', filters?.machineName);
+  console.log('Machine ID:', filters?.machineId);
   console.log('Sensor type:', filters?.sensorType);
   
   // Build query parameters for API call
   const queryParams = new URLSearchParams();
-  if (filters?.machineName) {
-    queryParams.append('machine_name', filters.machineName);
+  if (filters?.machineId) {
+    queryParams.append('machine_id', filters.machineId);
   }
   if (filters?.sensorType) {
     queryParams.append('sensor_type', filters.sensorType);

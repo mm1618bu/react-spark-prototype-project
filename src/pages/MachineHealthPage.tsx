@@ -76,8 +76,8 @@ const MachineHealthPage = () => {
       description: `Inspecting anomaly for ${machine.machine}`,
     });
     
-    // Navigate to inspection page with machine name and sensor type as URL parameters
-    navigate(`/inspection?machineName=${encodeURIComponent(machine.machine)}&sensorType=${encodeURIComponent(machine.sensorType)}`);
+    // Navigate to inspection page with machine ID and sensor type as URL parameters
+    navigate(`/inspection?machineId=${encodeURIComponent(machine.id)}&sensorType=${encodeURIComponent(machine.sensorType)}`);
   };
 
   console.log('Current state - machines:', machines, 'isLoading:', isLoading, 'error:', error);

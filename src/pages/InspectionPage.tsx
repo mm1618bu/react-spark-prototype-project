@@ -61,13 +61,13 @@ const InspectionPage = () => {
 
   useEffect(() => {
     // Read URL parameters and set initial filters
-    const machineNameParam = searchParams.get('machineName');
+    const machineIdParam = searchParams.get('machineId');
     const sensorTypeParam = searchParams.get('sensorType');
     
-    console.log('URL parameters:', { machineNameParam, sensorTypeParam });
+    console.log('URL parameters:', { machineIdParam, sensorTypeParam });
     
     const initialFilters: InspectionFilters = {
-      ...(machineNameParam && { machineName: machineNameParam }),
+      ...(machineIdParam && { machineId: machineIdParam }),
       ...(sensorTypeParam && { sensorType: sensorTypeParam })
     };
     
