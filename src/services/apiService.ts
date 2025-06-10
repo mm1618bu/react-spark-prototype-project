@@ -1,3 +1,4 @@
+
 // API service for communicating with the Python backend
 
 const API_URL = 'http://localhost:5001';
@@ -10,6 +11,7 @@ export interface QueryResponse {
 
 export interface InspectionFilters {
   machineId?: string;
+  machineName?: string;
   sensorType?: string;
 }
 
@@ -82,22 +84,32 @@ export async function sendQuery(query: string, source?: string): Promise<QueryRe
 
 export async function fetchInspectionData(filters?: InspectionFilters): Promise<GraphData> {
   console.log('🔧 fetchInspectionData called with filters:', filters);
-  console.log('🏭 Machine ID:', filters?.machineId);
-  console.log('📡 Sensor type:', filters?.sensorType);
+  console.log('🏭 Machine ID from filters:', filters?.machineId);
+  console.log('🏷️ Machine name from filters:', filters?.machineName);
+  console.log('📡 Sensor type from filters:', filters?.sensorType);
   
   // Build query parameters for API call
   const queryParams = new URLSearchParams();
+  
   if (filters?.machineId) {
     queryParams.append('machine_id', filters.machineId);
     console.log('✅ Added machine_id to query params:', filters.machineId);
   } else {
-    console.log('❌ No machine_id provided in filters');
+    console.log('❌ No machineId provided in filters');
   }
+  
+  if (filters?.machineName) {
+    queryParams.append('machine_name', filters.machineName);
+    console.log('✅ Added machine_name to query params:', filters.machineName);
+  } else {
+    console.log('❌ No machineName provided in filters');
+  }
+  
   if (filters?.sensorType) {
     queryParams.append('sensor_type', filters.sensorType);
     console.log('✅ Added sensor_type to query params:', filters.sensorType);
   } else {
-    console.log('❌ No sensor_type provided in filters');
+    console.log('❌ No sensorType provided in filters');
   }
   
   const url = `${API_URL}/inspection${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
