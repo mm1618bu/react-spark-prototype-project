@@ -43,6 +43,8 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
     materialsUsed: [{ description: '', quantity: '', partNo: '' }]
   });
 
+  const [isGenerating, setIsGenerating] = useState(false);
+
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
       ...prev,
@@ -80,6 +82,47 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
         i === index ? { ...material, [field]: value } : material
       )
     }));
+  };
+
+  const generateWorkOrder = async () => {
+    setIsGenerating(true);
+    console.log('Generating work order...');
+    
+    try {
+      const response = await fetch('http://localhost:5001/generate-work-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          request: 'generate_work_order',
+          current_data: formData
+        }),
+      });
+
+      console.log(`Response status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const workOrderData = await response.json();
+      console.log('Received work order data:', workOrderData);
+      
+      // Update form data with response from backend
+      setFormData(prev => ({
+        ...prev,
+        ...workOrderData,
+        // Handle arrays properly
+        partNumbers: workOrderData.partNumbers || prev.partNumbers,
+        materialsUsed: workOrderData.materialsUsed || prev.materialsUsed
+      }));
+      
+      console.log('Form populated with generated data');
+    } catch (error) {
+      console.error('Error generating work order:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -428,8 +471,15 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
+              <Button 
+                type="button" 
+                onClick={generateWorkOrder}
+                disabled={isGenerating}
+              >
+                {isGenerating ? 'Generating...' : 'Generate Work Order'}
+              </Button>
               <Button type="submit">
-                Generate Work Order
+                Submit Work Order
               </Button>
             </div>
           </form>
