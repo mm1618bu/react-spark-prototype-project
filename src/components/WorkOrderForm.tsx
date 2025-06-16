@@ -1,4 +1,5 @@
 
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -107,17 +108,31 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
 
-      const workOrderData = await response.json();
-      console.log('Received work order data:', workOrderData);
+      const data = await response.json();
+      console.log('Received work order data:', data);
+      
+      // Extract the response content - it might be nested in a 'response' field
+      const workOrderData = data.response || data;
+      console.log('Processing work order data:', workOrderData);
       
       // Update form data with response from backend
-      setFormData(prev => ({
-        ...prev,
-        ...workOrderData,
-        // Handle arrays properly
-        partNumbers: workOrderData.partNumbers || prev.partNumbers,
-        materialsUsed: workOrderData.materialsUsed || prev.materialsUsed
-      }));
+      // If the response is a structured object, merge it with existing form data
+      if (typeof workOrderData === 'object' && workOrderData !== null) {
+        setFormData(prev => ({
+          ...prev,
+          ...workOrderData,
+          // Handle arrays properly - only update if they exist in response
+          partNumbers: workOrderData.partNumbers || prev.partNumbers,
+          materialsUsed: workOrderData.materialsUsed || prev.materialsUsed
+        }));
+      } else {
+        // If response is text/markdown, you might want to parse it or put it in description
+        console.log('Response is text format:', workOrderData);
+        setFormData(prev => ({
+          ...prev,
+          workDescription: workOrderData || prev.workDescription
+        }));
+      }
       
       console.log('Form populated with generated data');
     } catch (error) {
