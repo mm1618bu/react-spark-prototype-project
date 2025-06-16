@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -89,14 +88,13 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
     console.log('Generating work order...');
     
     try {
-      const response = await fetch('http://localhost:5001/generate-work-order', {
+      const response = await fetch('http://localhost:5001/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          request: 'generate_work_order',
-          current_data: formData
+          query: 'Generate Work Order for this machine'
         }),
       });
 
