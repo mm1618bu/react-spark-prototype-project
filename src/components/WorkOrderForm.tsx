@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -94,7 +95,10 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          query: 'Generate Work Order for this machine'
+          query: 'Generate a work order for this machine',
+          source: 'anomaly',
+          responseFormat: 'markdown',
+          machine_id: '09ce4fec-8de8-4c1e-a987-9a0080313456'
         }),
       });
 
