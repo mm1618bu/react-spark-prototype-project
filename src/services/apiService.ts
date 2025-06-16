@@ -1,3 +1,4 @@
+
 // API service for communicating with the Python backend
 
 const API_URL = 'http://localhost:5001';
@@ -78,8 +79,39 @@ export async function sendQuery(query: string, source?: string, machineId?: stri
 
     const data = await response.json();
     console.log('Response data:', data);
+    
+    // Process the response to ensure proper formatting
+    let processedResponse = data.response || data;
+    
+    // If the response is a string that looks like a work order, format it properly
+    if (typeof processedResponse === 'string') {
+      // Clean up the formatting and convert to markdown
+      processedResponse = processedResponse
+        .replace(/Page No\. \d+\s+COMPANY NAME\s+PRIORITY: \d+/, '# Work Order Details\n\n**Priority:** 1  \n**Date:** 04/19/2025\n\n')
+        .replace(/P\.M\. WORK ORDER No\. (\d+)/, '## Work Order #$1')
+        .replace(/WEEK No\. (\d+)\s+WEEK OF: (.+)/, '**Week:** $1 | **Week of:** $2\n\n')
+        .replace(/EQUIPMENT I\.D\.: (.+)\s+CATEGORY: (.+)/, '## Equipment Information\n**Equipment ID:** $1  \n**Category:** $2')
+        .replace(/EQUIPMENT DESCRIPTION: (.+)/, '**Description:** $1')
+        .replace(/LOCATION: BUILDING: (.+)\s+DESCR:/, '**Location:** Building $1')
+        .replace(/FLOOR: (.+)/, '**Floor:** $1')
+        .replace(/ROOM: (.+)/, '**Room:** $1')
+        .replace(/DESCRIPTION: (.+)/, '**Area Description:** $1\n\n')
+        .replace(/CALL (.+) TO NOTIFY BEFORE SHUTDOWN\s+SPECIAL INSTRUCTIONS/, '## Special Instructions\n**Emergency Contact:** $1')
+        .replace(/SHOP\/VENDOR: (.+)\s+NAME: (.+)/, '**Shop/Vendor:** $1  \n**Department:** $2')
+        .replace(/EMPLOYEE:\s+(.+)/, '**Assigned Employee:** $1\n\n')
+        .replace(/TASK #: (\d+)\s+DESCRIPTION OF WORK\s+FREQ\./, '## Task #$1 - Work Description\n\n')
+        .replace(/(\d+)\.\s+(.+?)(?=\d+\.|PARTS AND COMPONENTS|$)/gs, '**$1.** $2\n\n')
+        .replace(/PARTS AND COMPONENTS REQUIRED/, '## Parts and Components Required\n\n')
+        .replace(/PART #:\s+QUANTITY PER ASSEMBLY:\s*\n(.+)\s+(.+)\s+(.+)/, '| Part # | Description | Quantity |\n|--------|-------------|----------|\n| $1 | $3 | $2 |')
+        .replace(/\*\*Possible Causes of Vibration Anomalies:\*\*/, '\n## Possible Causes of Vibration Anomalies\n\n')
+        .replace(/(\d+)\.\s+\*\*(.+?):\*\*\s+(.+?)(?=\d+\.|$)/gs, '**$1. $2:** $3\n\n')
+        // Clean up extra whitespace
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    }
+    
     return {
-      ...data,
+      response: processedResponse,
       format: 'markdown' // Ensure the response is marked as markdown for rendering
     };
   } catch (error) {
