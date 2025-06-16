@@ -8,6 +8,7 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Refe
 import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
+import { WorkOrderForm } from '@/components/WorkOrderForm';
 import { sendQuery, fetchInspectionData, InspectionFilters, GraphData } from '@/services/apiService';
 import ReactMarkdown from 'react-markdown';
 
@@ -26,6 +27,7 @@ const InspectionPage = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isQueryLoading, setIsQueryLoading] = useState(false);
   const [isChatMode, setIsChatMode] = useState(false);
+  const [showWorkOrderForm, setShowWorkOrderForm] = useState(false);
   const [filters, setFilters] = useState<InspectionFilters>({});
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -35,7 +37,7 @@ const InspectionPage = () => {
   const samplePrompts = [
     "What could be causing these vibration anomalies?",
     "Analyze the pattern of anomalies in this data",
-    "What maintenance actions should I take?",
+    "Do you have to generate a WorkOrder",
     "How severe are these detected anomalies?"
   ];
 
@@ -136,7 +138,36 @@ const InspectionPage = () => {
   };
 
   const handleSamplePromptClick = (prompt: string) => {
-    handleMessageSent(prompt);
+    if (prompt === "Do you have to generate a WorkOrder") {
+      setShowWorkOrderForm(true);
+    } else {
+      handleMessageSent(prompt);
+    }
+  };
+
+  const handleWorkOrderSubmit = (workOrderData: any) => {
+    console.log('Work order data:', workOrderData);
+    setShowWorkOrderForm(false);
+    
+    // Add the work order generation as a chat message
+    setMessages(prev => [...prev, 
+      { role: 'user', content: 'Generate a work order with the provided information' },
+      { 
+        role: 'system', 
+        content: `# Work Order Generated Successfully\n\n**Work Order #${workOrderData.workOrderNo || 'TBD'}** has been created for **${workOrderData.equipmentDescription || 'Equipment'}**.\n\nThe work order includes:\n- Equipment ID: ${workOrderData.equipmentId}\n- Location: Building ${workOrderData.building}, Floor ${workOrderData.floor}, Room ${workOrderData.room}\n- Assigned to: ${workOrderData.employee}\n- Priority: ${workOrderData.priority}\n\nAll specified parts and materials have been logged for procurement and scheduling.`,
+        format: 'markdown'
+      }
+    ]);
+    
+    if (!isChatMode) {
+      setIsChatMode(true);
+      setIsGraphExpanded(false);
+    }
+    
+    toast({
+      title: "Work Order Generated",
+      description: "Work order has been successfully created.",
+    });
   };
 
   const handleTyping = (isTyping: boolean) => {
@@ -535,6 +566,14 @@ const InspectionPage = () => {
           </div>
         </ScrollArea>
       </div>
+
+      {/* Work Order Form Modal */}
+      {showWorkOrderForm && (
+        <WorkOrderForm
+          onClose={() => setShowWorkOrderForm(false)}
+          onSubmit={handleWorkOrderSubmit}
+        />
+      )}
     </div>
   );
 };
