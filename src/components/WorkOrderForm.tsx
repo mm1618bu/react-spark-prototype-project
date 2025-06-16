@@ -1,5 +1,3 @@
-
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -85,6 +83,117 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
     }));
   };
 
+  const parseWorkOrderResponse = (responseText: string) => {
+    console.log('Parsing work order response:', responseText);
+    
+    const parsedData: any = {};
+    
+    // Extract Company Name
+    const companyMatch = responseText.match(/\*\*COMPANY NAME:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (companyMatch) parsedData.companyName = companyMatch[1].replace(/\[.*?\]/g, '').trim();
+    
+    // Extract Priority
+    const priorityMatch = responseText.match(/\*\*PRIORITY:\*\*\s*(\d+)/);
+    if (priorityMatch) parsedData.priority = priorityMatch[1];
+    
+    // Extract Work Order Number
+    const workOrderMatch = responseText.match(/\*\*P\.M\. WORK ORDER No\.:\*\*\s*(\d+)/);
+    if (workOrderMatch) parsedData.workOrderNo = workOrderMatch[1];
+    
+    // Extract Week Number
+    const weekMatch = responseText.match(/\*\*WEEK No\.:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (weekMatch) parsedData.weekNo = weekMatch[1].replace(/\[.*?\]/g, '').trim();
+    
+    // Extract Equipment ID
+    const equipIdMatch = responseText.match(/\*\*EQUIPMENT I\.D\.:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (equipIdMatch) parsedData.equipmentId = equipIdMatch[1].trim();
+    
+    // Extract Category
+    const categoryMatch = responseText.match(/\*\*CATEGORY:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (categoryMatch) parsedData.category = categoryMatch[1].trim();
+    
+    // Extract Equipment Description
+    const equipDescMatch = responseText.match(/\*\*EQUIPMENT DESCRIPTION:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (equipDescMatch) parsedData.equipmentDescription = equipDescMatch[1].trim();
+    
+    // Extract Building
+    const buildingMatch = responseText.match(/\*\*Building:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (buildingMatch) parsedData.building = buildingMatch[1].trim();
+    
+    // Extract Floor
+    const floorMatch = responseText.match(/\*\*FLOOR:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (floorMatch) parsedData.floor = floorMatch[1].trim();
+    
+    // Extract Room
+    const roomMatch = responseText.match(/\*\*ROOM:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (roomMatch) parsedData.room = roomMatch[1].trim();
+    
+    // Extract Description
+    const descMatch = responseText.match(/\*\*DESCRIPTION:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (descMatch) parsedData.description = descMatch[1].trim();
+    
+    // Extract Emergency Contact
+    const emergencyMatch = responseText.match(/\*\*CALL:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (emergencyMatch) parsedData.emergencyContact = emergencyMatch[1].trim();
+    
+    // Extract Special Instructions
+    const specialMatch = responseText.match(/\*\*SPECIAL INSTRUCTIONS:\*\*\s*(.+?)(?:\s*\*\*|\n)/s);
+    if (specialMatch) parsedData.specialInstructions = specialMatch[1].trim();
+    
+    // Extract Shop/Vendor
+    const shopMatch = responseText.match(/\*\*SHOP\/VENDOR:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (shopMatch) parsedData.shopVendor = shopMatch[1].trim();
+    
+    // Extract Department Name
+    const deptMatch = responseText.match(/\*\*NAME:\*\*\s*(.+?)(?:\s*\*\*|\n|$)/);
+    if (deptMatch) parsedData.departmentName = deptMatch[1].trim();
+    
+    // Extract Task Number
+    const taskMatch = responseText.match(/\*\*TASK #:\s*(\d+)\*\*/);
+    if (taskMatch) parsedData.taskNo = taskMatch[1];
+    
+    // Extract Work Description (everything between DESCRIPTION OF WORK and PARTS AND COMPONENTS)
+    const workDescMatch = responseText.match(/\*\*DESCRIPTION OF WORK\*\*[\s\S]*?\*\*FREQ\.:\*\*.*?\n([\s\S]*?)(?=\*\*PARTS AND COMPONENTS REQUIRED\*\*)/);
+    if (workDescMatch) {
+      parsedData.workDescription = workDescMatch[1].trim();
+    }
+    
+    // Extract Parts and Components
+    const partsSection = responseText.match(/\*\*PARTS AND COMPONENTS REQUIRED\*\*([\s\S]*?)(?=\*\*WORK PERFORMED BY:\*\*)/);
+    if (partsSection) {
+      const partMatches = partsSection[1].matchAll(/- \*\*PART #:\*\*\s*(.+?)\s*\*\*QUANTITY:\*\*\s*(\d+)\s*\*\*PART DESCRIPTION:\*\*\s*(.+?)\s*\*\*LOCATION:\*\*\s*(.+?)(?=\n|$)/g);
+      const parts = [];
+      for (const match of partMatches) {
+        parts.push({
+          partNo: match[1].trim(),
+          quantity: match[2].trim(),
+          description: match[3].trim(),
+          location: match[4].trim(),
+          qtyInStock: match[2].trim() // Using quantity as qty in stock for now
+        });
+      }
+      if (parts.length > 0) parsedData.partNumbers = parts;
+    }
+    
+    // Extract Materials Used
+    const materialsSection = responseText.match(/\*\*MATERIALS AND PARTS USED:\*\*([\s\S]*?)(?=---|$)/);
+    if (materialsSection) {
+      const materialMatches = materialsSection[1].matchAll(/- (\d+)\s+(.+?)\s+(P\d+)/g);
+      const materials = [];
+      for (const match of materialMatches) {
+        materials.push({
+          quantity: match[1].trim(),
+          description: match[2].trim(),
+          partNo: match[3].trim()
+        });
+      }
+      if (materials.length > 0) parsedData.materialsUsed = materials;
+    }
+    
+    console.log('Parsed data:', parsedData);
+    return parsedData;
+  };
+
   const generateWorkOrder = async () => {
     setIsGenerating(true);
     console.log('Generating work order...');
@@ -115,22 +224,24 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
       const workOrderData = data.response || data;
       console.log('Processing work order data:', workOrderData);
       
-      // Update form data with response from backend
-      // If the response is a structured object, merge it with existing form data
-      if (typeof workOrderData === 'object' && workOrderData !== null) {
+      // Parse the structured markdown response
+      if (typeof workOrderData === 'string') {
+        const parsedData = parseWorkOrderResponse(workOrderData);
+        setFormData(prev => ({
+          ...prev,
+          ...parsedData,
+          // Keep existing arrays if parsing didn't find any
+          partNumbers: parsedData.partNumbers || prev.partNumbers,
+          materialsUsed: parsedData.materialsUsed || prev.materialsUsed
+        }));
+      } else if (typeof workOrderData === 'object' && workOrderData !== null) {
+        // If response is already a structured object, merge it with existing form data
         setFormData(prev => ({
           ...prev,
           ...workOrderData,
           // Handle arrays properly - only update if they exist in response
           partNumbers: workOrderData.partNumbers || prev.partNumbers,
           materialsUsed: workOrderData.materialsUsed || prev.materialsUsed
-        }));
-      } else {
-        // If response is text/markdown, you might want to parse it or put it in description
-        console.log('Response is text format:', workOrderData);
-        setFormData(prev => ({
-          ...prev,
-          workDescription: workOrderData || prev.workDescription
         }));
       }
       
