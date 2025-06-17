@@ -387,8 +387,8 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
               <div>
                 <Label htmlFor="weekOf">Week Of</Label>
                 <Input
-                  id="weekOf"
                   type="date"
+                  id="weekOf"
                   value={formData.weekOf}
                   onChange={(e) => handleInputChange('weekOf', e.target.value)}
                 />
