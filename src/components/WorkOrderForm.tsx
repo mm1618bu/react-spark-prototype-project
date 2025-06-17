@@ -9,9 +9,10 @@ import { X } from 'lucide-react';
 interface WorkOrderFormProps {
   onClose: () => void;
   onSubmit: (workOrderData: any) => void;
+  machineId?: string;
 }
 
-export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
+export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormProps) => {
   const [formData, setFormData] = useState({
     pageNo: '1',
     priority: '1',
@@ -196,7 +197,7 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
 
   const generateWorkOrder = async () => {
     setIsGenerating(true);
-    console.log('Generating work order...');
+    console.log('Generating work order with machine_id:', machineId);
     
     try {
       const response = await fetch('http://localhost:5001/query', {
@@ -208,7 +209,7 @@ export const WorkOrderForm = ({ onClose, onSubmit }: WorkOrderFormProps) => {
           query: 'Generate a work order for this machine',
           source: 'anomaly',
           responseFormat: 'markdown',
-          machine_id: '09ce4fec-8de8-4c1e-a987-9a0080313456'
+          machine_id: machineId || '09ce4fec-8de8-4c1e-a987-9a0080313456' // fallback to hardcoded value
         }),
       });
 

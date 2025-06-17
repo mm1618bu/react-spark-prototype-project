@@ -572,6 +572,7 @@ const InspectionPage = () => {
         <WorkOrderForm
           onClose={() => setShowWorkOrderForm(false)}
           onSubmit={handleWorkOrderSubmit}
+          machineId={searchParams.get('machineId') || undefined}
         />
       )}
     </div>
