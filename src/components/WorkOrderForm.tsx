@@ -161,7 +161,7 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     const taskMatch = responseText.match(/\*\*TASK No\.\*\*\s*(\d+)/);
     if (taskMatch) parsedData.taskNo = taskMatch[1];
     
-    // Extract Work Description (everything between DESCRIPTION OF WORK and FREQ)
+    // Extract Work Description (multi-line content with numbered list)
     const workDescMatch = responseText.match(/\*\*DESCRIPTION OF WORK:\*\*\s*\n([\s\S]*?)(?=\*\*FREQ\.\*\*)/);
     if (workDescMatch) {
       parsedData.workDescription = workDescMatch[1].trim();
