@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -197,20 +198,38 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
 
   const generateWorkOrder = async () => {
     setIsGenerating(true);
-    console.log('Generating work order with machine_id:', machineId);
+    
+    // Debug logging to see what machine ID we're working with
+    console.log('WorkOrderForm - machineId prop received:', machineId);
+    console.log('WorkOrderForm - machineId type:', typeof machineId);
+    console.log('WorkOrderForm - machineId is defined:', machineId !== undefined);
+    console.log('WorkOrderForm - machineId is not empty:', machineId !== '');
+    
+    // Only use hardcoded fallback if machineId is truly undefined or empty
+    const finalMachineId = machineId && machineId.trim() !== '' ? machineId : null;
+    console.log('WorkOrderForm - Final machine_id to send:', finalMachineId);
+    
+    if (!finalMachineId) {
+      console.error('WorkOrderForm - No valid machine ID available!');
+      // Still proceed but log the issue
+    }
     
     try {
+      const requestPayload = {
+        query: 'Generate a work order for this machine',
+        source: 'anomaly',
+        responseFormat: 'markdown',
+        ...(finalMachineId && { machine_id: finalMachineId })
+      };
+      
+      console.log('WorkOrderForm - Request payload:', JSON.stringify(requestPayload, null, 2));
+      
       const response = await fetch('http://localhost:5001/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          query: 'Generate a work order for this machine',
-          source: 'anomaly',
-          responseFormat: 'markdown',
-          machine_id: machineId || '09ce4fec-8de8-4c1e-a987-9a0080313456' // fallback to hardcoded value
-        }),
+        body: JSON.stringify(requestPayload),
       });
 
       console.log(`Response status: ${response.status}`);

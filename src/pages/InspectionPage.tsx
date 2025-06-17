@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -68,7 +67,7 @@ const InspectionPage = () => {
     const machineNameParam = searchParams.get('machineName');
     const sensorTypeParam = searchParams.get('sensorType');
     
-    console.log('URL parameters:', { machineIdParam, machineNameParam, sensorTypeParam });
+    console.log('InspectionPage - URL parameters:', { machineIdParam, machineNameParam, sensorTypeParam });
     
     const initialFilters: InspectionFilters = {
       ...(machineIdParam && { machineId: machineIdParam }),
@@ -76,7 +75,7 @@ const InspectionPage = () => {
       ...(sensorTypeParam && { sensorType: sensorTypeParam })
     };
     
-    console.log('Setting initial filters:', initialFilters);
+    console.log('InspectionPage - Setting initial filters:', initialFilters);
     setFilters(initialFilters);
     fetchGraphData(initialFilters);
   }, [searchParams]);
@@ -140,6 +139,8 @@ const InspectionPage = () => {
 
   const handleSamplePromptClick = (prompt: string) => {
     if (prompt === "Do you have to generate a WorkOrder") {
+      const machineIdFromParams = searchParams.get('machineId');
+      console.log('InspectionPage - Opening WorkOrderForm with machineId:', machineIdFromParams);
       setShowWorkOrderForm(true);
     } else {
       handleMessageSent(prompt);
