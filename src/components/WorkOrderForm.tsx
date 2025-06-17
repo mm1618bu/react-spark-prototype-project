@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -88,10 +87,23 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
   const parseWorkOrderResponse = (data: any) => {
     console.log('Parsing work order data:', data);
     
-    // Handle the new backend response format
     let workOrderData = null;
     
-    if (data.workorder && data.workorder.raw) {
+    // Try to extract JSON from the response
+    if (data.response && typeof data.response === 'string') {
+      try {
+        // Look for JSON block in the response
+        const jsonMatch = data.response.match(/```json\s*([\s\S]*?)\s*```/);
+        if (jsonMatch) {
+          workOrderData = JSON.parse(jsonMatch[1]);
+        } else {
+          // Try to parse the entire response as JSON
+          workOrderData = JSON.parse(data.response);
+        }
+      } catch (error) {
+        console.error('Error parsing JSON from response:', error);
+      }
+    } else if (data.workorder && data.workorder.raw) {
       try {
         // Extract JSON from the raw field (it's wrapped in ```json```)
         const jsonMatch = data.workorder.raw.match(/```json\n([\s\S]*?)\n```/);
@@ -110,34 +122,61 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     
     console.log('Extracted work order data:', workOrderData);
     
+    // Map the new response format to form fields
     const parsedData: any = {
-      pageNo: workOrderData.page_no?.toString() || '',
-      companyName: workOrderData.company_name || '',
-      priority: workOrderData.priority?.toString() || '',
-      workOrderNo: workOrderData.work_order_no?.toString() || '',
-      weekNo: workOrderData.week_no?.toString() || '',
-      weekOf: workOrderData.week_of || '',
-      equipmentId: workOrderData.equipment_id || '',
-      category: workOrderData.category || '',
-      equipmentDescription: workOrderData.description || '',
-      description: workOrderData.description || '',
-      specialInstructions: workOrderData.special_instructions || '',
-      shopVendor: workOrderData.shop_vendor || '',
-      employee: workOrderData.employee || '',
-      workPerformedBy: workOrderData.work_performed_by || '',
-      standardHours: workOrderData.std_hrs || '',
-      overtimeHours: workOrderData.total_est_hrs || ''
+      pageNo: workOrderData['Page No.'] || workOrderData.page_no?.toString() || '',
+      companyName: workOrderData['Company Name'] || workOrderData.company_name || '',
+      priority: workOrderData['Priority'] || workOrderData.priority?.toString() || '',
+      workOrderNo: workOrderData['Work Order No.'] || workOrderData.work_order_no?.toString() || '',
+      weekNo: workOrderData['Week No.'] || workOrderData.week_no?.toString() || '',
+      weekOf: workOrderData['Week Of'] || workOrderData.week_of || workOrderData['Date'] || '',
+      equipmentId: workOrderData['Equipment I.D.'] || workOrderData.equipment_id || '',
+      category: workOrderData['Category'] || workOrderData.category || '',
+      specialInstructions: workOrderData['Special Instructions'] || workOrderData.special_instructions || '',
+      employee: workOrderData['Employee'] || workOrderData.employee || '',
+      taskNo: workOrderData['Task No.'] || workOrderData.task_no?.toString() || '',
+      frequency: workOrderData['Frequency'] || workOrderData.frequency || '',
+      workPerformedBy: workOrderData['Work Performed By'] || workOrderData.work_performed_by || '',
+      standardHours: workOrderData['Estimated Hours'] || workOrderData.std_hrs || workOrderData.estimated_hours || '',
+      overtimeHours: workOrderData['Actual Hours'] || workOrderData.total_est_hrs || workOrderData.actual_hours || ''
     };
     
-    // Handle tasks array - convert to work description
-    if (workOrderData.tasks && Array.isArray(workOrderData.tasks)) {
+    // Handle location object
+    if (workOrderData['Location'] && typeof workOrderData['Location'] === 'object') {
+      parsedData.building = workOrderData['Location']['Building'] || '';
+      parsedData.floor = workOrderData['Location']['Floor'] || '';
+      parsedData.room = workOrderData['Location']['Room'] || '';
+      parsedData.description = workOrderData['Location']['Description'] || '';
+    }
+    
+    // Handle shop/vendor object
+    if (workOrderData['Shop/Vendor'] && typeof workOrderData['Shop/Vendor'] === 'object') {
+      const shopVendorObj = workOrderData['Shop/Vendor'];
+      parsedData.shopVendor = Object.keys(shopVendorObj)[0] || '';
+      parsedData.departmentName = shopVendorObj['Name'] || Object.values(shopVendorObj)[0] || '';
+    } else if (typeof workOrderData['Shop/Vendor'] === 'string') {
+      parsedData.shopVendor = workOrderData['Shop/Vendor'];
+    }
+    
+    // Handle description of work array
+    if (workOrderData['Description of Work'] && Array.isArray(workOrderData['Description of Work'])) {
+      parsedData.workDescription = workOrderData['Description of Work'].join('\n');
+    } else if (workOrderData.tasks && Array.isArray(workOrderData.tasks)) {
       parsedData.workDescription = workOrderData.tasks
         .map((task, index) => `${index + 1}. ${task}`)
         .join('\n');
     }
     
     // Handle parts array
-    if (workOrderData.parts && Array.isArray(workOrderData.parts) && workOrderData.parts.length > 0) {
+    if (workOrderData['Parts and Components Required'] && Array.isArray(workOrderData['Parts and Components Required']) && workOrderData['Parts and Components Required'].length > 0) {
+      parsedData.partNumbers = workOrderData['Parts and Components Required'].map(part => ({
+        partNo: part.part_no || part.partNo || part['Part No.'] || '',
+        description: part.description || part['Description'] || '',
+        quantity: part.quantity?.toString() || part['Quantity']?.toString() || '',
+        qtyInStock: part.qty_in_stock?.toString() || part.qtyInStock?.toString() || part['Qty in Stock']?.toString() || '',
+        location: part.location || part['Location'] || ''
+      }));
+    } else if (workOrderData.parts && Array.isArray(workOrderData.parts) && workOrderData.parts.length > 0) {
       parsedData.partNumbers = workOrderData.parts.map(part => ({
         partNo: part.part_no || part.partNo || '',
         description: part.description || '',
@@ -148,9 +187,14 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     }
     
     // Handle materials
-    if (workOrderData.materials_and_parts_used) {
+    if (workOrderData['Materials and Parts Used'] && Array.isArray(workOrderData['Materials and Parts Used']) && workOrderData['Materials and Parts Used'].length > 0) {
+      parsedData.materialsUsed = workOrderData['Materials and Parts Used'].map(material => ({
+        description: material.description || material['Description'] || '',
+        quantity: material.quantity?.toString() || material['Quantity']?.toString() || '',
+        partNo: material.part_no || material.partNo || material['Part No.'] || ''
+      }));
+    } else if (workOrderData.materials_and_parts_used) {
       if (typeof workOrderData.materials_and_parts_used === 'string') {
-        // If it's a string, create a single material entry
         parsedData.materialsUsed = [{
           description: workOrderData.materials_and_parts_used,
           quantity: '',
