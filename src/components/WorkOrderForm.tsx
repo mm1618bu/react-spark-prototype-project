@@ -89,13 +89,20 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     
     let workOrderData = null;
     
-    // Handle the new format where data is in workorder.raw
-    if (data.workorder && data.workorder.raw) {
+    // Handle the new format where data is in raw field
+    if (data.raw) {
       try {
         // Extract JSON from the raw field (it's wrapped in ```json```)
-        const jsonMatch = data.workorder.raw.match(/```json\n([\s\S]*?)\n```/);
+        const jsonMatch = data.raw.match(/```json\n([\s\S]*?)\n```/);
         if (jsonMatch) {
-          workOrderData = JSON.parse(jsonMatch[1]);
+          // Clean up any comments or trailing commas before parsing
+          let jsonString = jsonMatch[1];
+          // Remove comments (lines starting with //)
+          jsonString = jsonString.replace(/\/\/.*$/gm, '');
+          // Remove trailing commas before closing brackets/braces
+          jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
+          
+          workOrderData = JSON.parse(jsonString);
         }
       } catch (error) {
         console.error('Error parsing JSON from raw field:', error);
@@ -106,7 +113,10 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
       try {
         const jsonMatch = data.response.match(/```json\s*([\s\S]*?)\s*```/);
         if (jsonMatch) {
-          workOrderData = JSON.parse(jsonMatch[1]);
+          let jsonString = jsonMatch[1];
+          jsonString = jsonString.replace(/\/\/.*$/gm, '');
+          jsonString = jsonString.replace(/,(\s*[}\]])/g, '$1');
+          workOrderData = JSON.parse(jsonString);
         } else {
           workOrderData = JSON.parse(data.response);
         }
@@ -122,69 +132,98 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     
     console.log('Extracted work order data:', workOrderData);
     
+    // Helper function to clean empty values
+    const cleanValue = (value: any) => {
+      if (typeof value === 'string') {
+        const cleaned = value.trim();
+        return cleaned === '' || cleaned === ' ' ? '' : cleaned;
+      }
+      return value || '';
+    };
+    
     // Map the response to form fields
     const parsedData: any = {
-      pageNo: workOrderData.page_no?.toString() || '',
-      companyName: workOrderData.company_name || '',
-      priority: workOrderData.priority?.toString() || '',
-      workOrderNo: workOrderData.work_order_no?.toString() || '',
-      weekNo: workOrderData.week_no?.toString() || '',
-      weekOf: workOrderData.week_of || workOrderData.date || '',
-      equipmentId: workOrderData.equipment_id || '',
-      category: workOrderData.category || '',
-      equipmentDescription: workOrderData.equipment_description || '',
-      specialInstructions: workOrderData.special_instructions || '',
-      employee: workOrderData.employee || ''
+      pageNo: cleanValue(workOrderData.page_no?.toString()),
+      companyName: cleanValue(workOrderData.company_name),
+      priority: cleanValue(workOrderData.priority?.toString()),
+      workOrderNo: cleanValue(workOrderData.work_order_no?.toString()),
+      weekNo: cleanValue(workOrderData.week_no?.toString()),
+      weekOf: cleanValue(workOrderData.week_of || workOrderData.date),
+      equipmentId: cleanValue(workOrderData.equipment_id),
+      category: cleanValue(workOrderData.category),
+      equipmentDescription: cleanValue(workOrderData.equipment_description),
+      specialInstructions: cleanValue(workOrderData.special_instructions),
+      employee: cleanValue(workOrderData.employee)
     };
     
     // Handle location object
     if (workOrderData.location && typeof workOrderData.location === 'object') {
-      parsedData.building = workOrderData.location.building || '';
-      parsedData.floor = workOrderData.location.floor || '';
-      parsedData.room = workOrderData.location.room || '';
-      parsedData.description = workOrderData.location.description || '';
+      parsedData.building = cleanValue(workOrderData.location.building);
+      parsedData.floor = cleanValue(workOrderData.location.floor);
+      parsedData.room = cleanValue(workOrderData.location.room);
+      parsedData.description = cleanValue(workOrderData.location.description);
     }
     
     // Handle shop_vendor object
     if (workOrderData.shop_vendor && typeof workOrderData.shop_vendor === 'object') {
-      parsedData.shopVendor = workOrderData.shop_vendor.shop_vendor || '';
-      parsedData.departmentName = workOrderData.shop_vendor.name || '';
+      parsedData.shopVendor = cleanValue(workOrderData.shop_vendor.shop_vendor);
+      parsedData.departmentName = cleanValue(workOrderData.shop_vendor.name);
     }
     
     // Handle tasks array
     if (workOrderData.tasks && Array.isArray(workOrderData.tasks) && workOrderData.tasks.length > 0) {
       const firstTask = workOrderData.tasks[0];
-      parsedData.taskNo = firstTask.task_no?.toString() || '';
-      parsedData.workDescription = firstTask.description_of_work || '';
-      parsedData.frequency = firstTask.frequency || '';
+      parsedData.taskNo = cleanValue(firstTask.task_no?.toString());
+      
+      // Handle multi-line description - convert \\n to actual newlines
+      let workDesc = cleanValue(firstTask.description_of_work);
+      if (workDesc) {
+        workDesc = workDesc.replace(/\\\\n/g, '\n').replace(/\\n/g, '\n');
+      }
+      parsedData.workDescription = workDesc;
+      parsedData.frequency = cleanValue(firstTask.frequency);
     }
     
-    // Handle parts array
-    if (workOrderData.parts_and_components_required && Array.isArray(workOrderData.parts_and_components_required) && workOrderData.parts_and_components_required.length > 0) {
-      parsedData.partNumbers = workOrderData.parts_and_components_required.map(part => ({
-        partNo: part.part_no || '',
-        description: part.part_description || '',
-        quantity: part.quantity?.toString() || '',
-        qtyInStock: part.qty_in_stock?.toString() || '',
-        location: part.location || ''
-      }));
+    // Handle parts array - filter out empty entries
+    if (workOrderData.parts_and_components_required && Array.isArray(workOrderData.parts_and_components_required)) {
+      const validParts = workOrderData.parts_and_components_required.filter(part => {
+        const hasValidData = cleanValue(part.part_no) || cleanValue(part.part_description) || cleanValue(part.quantity);
+        return hasValidData;
+      });
+      
+      if (validParts.length > 0) {
+        parsedData.partNumbers = validParts.map(part => ({
+          partNo: cleanValue(part.part_no),
+          description: cleanValue(part.part_description),
+          quantity: cleanValue(part.quantity?.toString()),
+          qtyInStock: cleanValue(part.qty_in_stock?.toString()),
+          location: cleanValue(part.location)
+        }));
+      }
     }
     
     // Handle work performed by
     if (workOrderData.work_performed_by && typeof workOrderData.work_performed_by === 'object') {
-      parsedData.workPerformedBy = workOrderData.work_performed_by.employee || '';
+      parsedData.workPerformedBy = cleanValue(workOrderData.work_performed_by.employee);
       if (workOrderData.work_performed_by.time_spent && workOrderData.work_performed_by.time_spent.hours) {
-        parsedData.standardHours = workOrderData.work_performed_by.time_spent.hours.toString();
+        parsedData.standardHours = cleanValue(workOrderData.work_performed_by.time_spent.hours.toString());
       }
     }
     
-    // Handle materials used
-    if (workOrderData.materials_and_parts_used && Array.isArray(workOrderData.materials_and_parts_used) && workOrderData.materials_and_parts_used.length > 0) {
-      parsedData.materialsUsed = workOrderData.materials_and_parts_used.map(material => ({
-        description: material.description || '',
-        quantity: material.quantity?.toString() || '',
-        partNo: material.part_no || ''
-      }));
+    // Handle materials used - filter out empty entries
+    if (workOrderData.materials_and_parts_used && Array.isArray(workOrderData.materials_and_parts_used)) {
+      const validMaterials = workOrderData.materials_and_parts_used.filter(material => {
+        const hasValidData = cleanValue(material.description) || cleanValue(material.quantity) || cleanValue(material.part_no);
+        return hasValidData;
+      });
+      
+      if (validMaterials.length > 0) {
+        parsedData.materialsUsed = validMaterials.map(material => ({
+          description: cleanValue(material.description),
+          quantity: cleanValue(material.quantity?.toString()),
+          partNo: cleanValue(material.part_no)
+        }));
+      }
     }
     
     console.log('Final parsed data:', parsedData);
