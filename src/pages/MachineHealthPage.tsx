@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -75,10 +76,6 @@ const MachineHealthPage = () => {
     console.log('Machine name being passed:', machine.machine);
     console.log('Sensor type being passed:', machine.sensorType);
     
-    // Ensure we're using the correct machine.id (which should be the machine_id from backend)
-    const machineId = machine.id;
-    console.log('Final machineId for URL:', machineId);
-    
     toast({
       title: "Inspect Anomaly",
       description: `Inspecting anomaly for ${machine.machine}`,
@@ -86,7 +83,7 @@ const MachineHealthPage = () => {
     
     // Navigate to inspection page with machine ID, machine name, and sensor type as URL parameters
     // Using machine.id (which is the machine_id from backend), machine.machine (machine name), and machine.sensorType
-    navigate(`/inspection?machineId=${encodeURIComponent(machineId)}&machineName=${encodeURIComponent(machine.machine)}&sensorType=${encodeURIComponent(machine.sensorType)}`);
+    navigate(`/inspection?machineId=${encodeURIComponent(machine.id)}&machineName=${encodeURIComponent(machine.machine)}&sensorType=${encodeURIComponent(machine.sensorType)}`);
   };
 
   console.log('Current state - machines:', machines, 'isLoading:', isLoading, 'error:', error);

@@ -140,8 +140,6 @@ const InspectionPage = () => {
 
   const handleSamplePromptClick = (prompt: string) => {
     if (prompt === "Do you have to generate a WorkOrder") {
-      console.log('=== Opening Work Order Form ===');
-      console.log('machineId from URL params:', searchParams.get('machineId'));
       setShowWorkOrderForm(true);
     } else {
       handleMessageSent(prompt);
