@@ -37,7 +37,7 @@ const InspectionPage = () => {
   const samplePrompts = [
     "What could be causing these vibration anomalies?",
     "Analyze the pattern of anomalies in this data",
-    "Do you have to generate a WorkOrder",
+    "Do you want to generate a Work Order?",
     "How severe are these detected anomalies?"
   ];
 
@@ -138,7 +138,7 @@ const InspectionPage = () => {
   };
 
   const handleSamplePromptClick = (prompt: string) => {
-    if (prompt === "Do you have to generate a WorkOrder") {
+    if (prompt === "Do you want to generate a Work Order?") {
       const machineIdFromParams = searchParams.get('machineId');
       console.log('InspectionPage - Opening WorkOrderForm with machineId:', machineIdFromParams);
       setShowWorkOrderForm(true);
