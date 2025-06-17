@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -197,20 +198,30 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
 
   const generateWorkOrder = async () => {
     setIsGenerating(true);
-    console.log('Generating work order with machine_id:', machineId);
+    console.log('=== Work Order Generation Debug ===');
+    console.log('machineId prop received:', machineId);
+    console.log('machineId type:', typeof machineId);
+    console.log('machineId is truthy:', !!machineId);
+    
+    const finalMachineId = machineId || '09ce4fec-8de8-4c1e-a987-9a0080313456';
+    console.log('Final machine_id to be sent:', finalMachineId);
     
     try {
+      const requestBody = {
+        query: 'Generate a work order for this machine',
+        source: 'anomaly',
+        responseFormat: 'markdown',
+        machine_id: finalMachineId
+      };
+      
+      console.log('Request body being sent:', JSON.stringify(requestBody, null, 2));
+      
       const response = await fetch('http://localhost:5001/query', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          query: 'Generate a work order for this machine',
-          source: 'anomaly',
-          responseFormat: 'markdown',
-          machine_id: machineId || '09ce4fec-8de8-4c1e-a987-9a0080313456' // fallback to hardcoded value
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       console.log(`Response status: ${response.status}`);
