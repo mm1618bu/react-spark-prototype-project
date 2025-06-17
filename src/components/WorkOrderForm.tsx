@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface WorkOrderFormProps {
   onClose: () => void;
@@ -44,6 +45,8 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -282,14 +285,63 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
       console.log('Form populated with generated data');
     } catch (error) {
       console.error('Error generating work order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate work order. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const submitWorkOrder = async () => {
+    setIsSubmitting(true);
+    console.log('Submitting work order data:', formData);
+    
+    try {
+      const response = await fetch('http://localhost:5001/work-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...formData,
+          ...(machineId && { machineId })
+        }),
+      });
+
+      console.log(`Submit response status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Work order submitted successfully:', result);
+      
+      toast({
+        title: "Success",
+        description: "Work order submitted successfully!",
+      });
+      
+      // Call the original onSubmit callback
+      onSubmit(formData);
+      
+    } catch (error) {
+      console.error('Error submitting work order:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit work order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    submitWorkOrder();
   };
 
   return (
@@ -640,8 +692,8 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
               >
                 {isGenerating ? 'Generating...' : 'Generate Work Order'}
               </Button>
-              <Button type="submit">
-                Submit Work Order
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? 'Submitting...' : 'Submit Work Order'}
               </Button>
             </div>
           </form>
