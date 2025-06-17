@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { submitWorkOrder } from '@/services/workOrderService';
 
 interface WorkOrderFormProps {
   onClose: () => void;
@@ -296,29 +296,11 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     }
   };
 
-  const submitWorkOrder = async () => {
+  const handleSubmitWorkOrder = async () => {
     setIsSubmitting(true);
-    console.log('Submitting work order data:', formData);
     
     try {
-      const response = await fetch('http://localhost:5001/work-order', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...formData,
-          ...(machineId && { machineId })
-        }),
-      });
-
-      console.log(`Submit response status: ${response.status}`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-
-      const result = await response.json();
-      console.log('Work order submitted successfully:', result);
+      await submitWorkOrder(formData, machineId);
       
       toast({
         title: "Success",
@@ -695,7 +677,7 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
               </Button>
               <Button 
                 type="button" 
-                onClick={submitWorkOrder}
+                onClick={handleSubmitWorkOrder}
                 disabled={isSubmitting}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit Work Order'}
