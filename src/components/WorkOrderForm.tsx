@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -84,122 +85,87 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     }));
   };
 
-  const parseWorkOrderResponse = (responseText: string) => {
-    console.log('Parsing work order response:', responseText);
+  const parseWorkOrderResponse = (data: any) => {
+    console.log('Parsing work order data:', data);
     
-    const parsedData: any = {};
+    // Handle the new backend response format
+    let workOrderData = null;
     
-    // Extract Page No.
-    const pageMatch = responseText.match(/\*\*Page No\.\*\*\s*(\d+)/);
-    if (pageMatch) parsedData.pageNo = pageMatch[1];
-    
-    // Extract Company Name (look for the line after **COMPANY NAME**)
-    const companyMatch = responseText.match(/\*\*COMPANY NAME\*\*\s*\n*([^\n\*]+)/);
-    if (companyMatch) parsedData.companyName = companyMatch[1].trim();
-    
-    // Extract Priority
-    const priorityMatch = responseText.match(/\*\*PRIORITY:\*\*\s*(\d+)/);
-    if (priorityMatch) parsedData.priority = priorityMatch[1];
-    
-    // Extract Work Order Number
-    const workOrderMatch = responseText.match(/\*\*P\.M\. WORK ORDER No\.\*\*\s*(\d+)/);
-    if (workOrderMatch) parsedData.workOrderNo = workOrderMatch[1];
-    
-    // Extract Week Number
-    const weekMatch = responseText.match(/\*\*WEEK No\.\*\*\s*(\d+)/);
-    if (weekMatch) parsedData.weekNo = weekMatch[1];
-    
-    // Extract Week Of
-    const weekOfMatch = responseText.match(/\*\*WEEK OF:\*\*\s*([^\n]+)/);
-    if (weekOfMatch) parsedData.weekOf = weekOfMatch[1].trim();
-    
-    // Extract Equipment ID
-    const equipIdMatch = responseText.match(/\*\*EQUIPMENT I\.D\.\*\*\s*(\d+)/);
-    if (equipIdMatch) parsedData.equipmentId = equipIdMatch[1];
-    
-    // Extract Category
-    const categoryMatch = responseText.match(/\*\*CATEGORY:\*\*\s*([^\n]+)/);
-    if (categoryMatch) parsedData.category = categoryMatch[1].trim();
-    
-    // Extract Equipment Description
-    const equipDescMatch = responseText.match(/\*\*EQUIPMENT DESCRIPTION:\*\*\s*([^\n]+)/);
-    if (equipDescMatch) parsedData.equipmentDescription = equipDescMatch[1].trim();
-    
-    // Extract Building
-    const buildingMatch = responseText.match(/\*\*BUILDING:\*\*\s*([^\n]+)/);
-    if (buildingMatch) parsedData.building = buildingMatch[1].trim();
-    
-    // Extract Floor
-    const floorMatch = responseText.match(/\*\*FLOOR:\*\*\s*([^\n]+)/);
-    if (floorMatch) parsedData.floor = floorMatch[1].trim();
-    
-    // Extract Room
-    const roomMatch = responseText.match(/\*\*ROOM:\*\*\s*([^\n]+)/);
-    if (roomMatch) parsedData.room = roomMatch[1].trim();
-    
-    // Extract Description
-    const descMatch = responseText.match(/\*\*DESCRIPTION:\*\*\s*([^\n]+)/);
-    if (descMatch) parsedData.description = descMatch[1].trim();
-    
-    // Extract Special Instructions (multi-line content)
-    const specialMatch = responseText.match(/\*\*SPECIAL INSTRUCTIONS\*\*\s*\n([^*]+?)(?=\*\*|$)/s);
-    if (specialMatch) parsedData.specialInstructions = specialMatch[1].trim();
-    
-    // Extract Shop/Vendor
-    const shopMatch = responseText.match(/\*\*SHOP\/VENDOR:\*\*\s*([^\n]+)/);
-    if (shopMatch) parsedData.shopVendor = shopMatch[1].trim();
-    
-    // Extract Department Name
-    const nameMatch = responseText.match(/\*\*NAME:\*\*\s*([^\n]+)/);
-    if (nameMatch) parsedData.departmentName = nameMatch[1].trim();
-    
-    // Extract Employee
-    const employeeMatch = responseText.match(/\*\*EMPLOYEE:\*\*\s*([^\n]+)/);
-    if (employeeMatch) parsedData.employee = employeeMatch[1].trim();
-    
-    // Extract Task Number
-    const taskMatch = responseText.match(/\*\*TASK No\.\*\*\s*(\d+)/);
-    if (taskMatch) parsedData.taskNo = taskMatch[1];
-    
-    // Extract Work Description (multi-line content with numbered list)
-    const workDescMatch = responseText.match(/\*\*DESCRIPTION OF WORK:\*\*\s*\n([\s\S]*?)(?=\*\*FREQ\.\*\*)/);
-    if (workDescMatch) {
-      parsedData.workDescription = workDescMatch[1].trim();
-    }
-    
-    // Extract Frequency
-    const freqMatch = responseText.match(/\*\*FREQ\.\*\*\s*([^\n]+)/);
-    if (freqMatch) parsedData.frequency = freqMatch[1].trim();
-    
-    // Extract Parts and Components
-    const partsSection = responseText.match(/\*\*PARTS AND COMPONENTS REQUIRED\*\*([\s\S]*?)(?=\*\*WORK PERFORMED BY\*\*)/);
-    if (partsSection) {
-      const parts = [];
-      const partBlocks = partsSection[1].split(/(?=- \*\*PART #:\*\*)/);
-      
-      for (const block of partBlocks) {
-        if (block.trim()) {
-          const partNoMatch = block.match(/\*\*PART #:\*\*\s*([^\n]+)/);
-          const quantityMatch = block.match(/\*\*QUANTITY:\*\*\s*(\d+)/);
-          const descriptionMatch = block.match(/\*\*DESCRIPTION:\*\*\s*([^\n]+)/);
-          const locationMatch = block.match(/\*\*LOCATION:\*\*\s*([^\n]+)/);
-          
-          if (partNoMatch) {
-            parts.push({
-              partNo: partNoMatch[1].trim(),
-              quantity: quantityMatch ? quantityMatch[1].trim() : '',
-              description: descriptionMatch ? descriptionMatch[1].trim() : '',
-              location: locationMatch ? locationMatch[1].trim() : '',
-              qtyInStock: quantityMatch ? quantityMatch[1].trim() : ''
-            });
-          }
+    if (data.workorder && data.workorder.raw) {
+      try {
+        // Extract JSON from the raw field (it's wrapped in ```json```)
+        const jsonMatch = data.workorder.raw.match(/```json\n([\s\S]*?)\n```/);
+        if (jsonMatch) {
+          workOrderData = JSON.parse(jsonMatch[1]);
         }
+      } catch (error) {
+        console.error('Error parsing JSON from raw field:', error);
       }
-      
-      if (parts.length > 0) parsedData.partNumbers = parts;
     }
     
-    console.log('Parsed data:', parsedData);
+    if (!workOrderData) {
+      console.log('No valid work order data found');
+      return {};
+    }
+    
+    console.log('Extracted work order data:', workOrderData);
+    
+    const parsedData: any = {
+      pageNo: workOrderData.page_no?.toString() || '',
+      companyName: workOrderData.company_name || '',
+      priority: workOrderData.priority?.toString() || '',
+      workOrderNo: workOrderData.work_order_no?.toString() || '',
+      weekNo: workOrderData.week_no?.toString() || '',
+      weekOf: workOrderData.week_of || '',
+      equipmentId: workOrderData.equipment_id || '',
+      category: workOrderData.category || '',
+      equipmentDescription: workOrderData.description || '',
+      description: workOrderData.description || '',
+      specialInstructions: workOrderData.special_instructions || '',
+      shopVendor: workOrderData.shop_vendor || '',
+      employee: workOrderData.employee || '',
+      workPerformedBy: workOrderData.work_performed_by || '',
+      standardHours: workOrderData.std_hrs || '',
+      overtimeHours: workOrderData.total_est_hrs || ''
+    };
+    
+    // Handle tasks array - convert to work description
+    if (workOrderData.tasks && Array.isArray(workOrderData.tasks)) {
+      parsedData.workDescription = workOrderData.tasks
+        .map((task, index) => `${index + 1}. ${task}`)
+        .join('\n');
+    }
+    
+    // Handle parts array
+    if (workOrderData.parts && Array.isArray(workOrderData.parts) && workOrderData.parts.length > 0) {
+      parsedData.partNumbers = workOrderData.parts.map(part => ({
+        partNo: part.part_no || part.partNo || '',
+        description: part.description || '',
+        quantity: part.quantity?.toString() || '',
+        qtyInStock: part.qty_in_stock?.toString() || part.qtyInStock?.toString() || '',
+        location: part.location || ''
+      }));
+    }
+    
+    // Handle materials
+    if (workOrderData.materials_and_parts_used) {
+      if (typeof workOrderData.materials_and_parts_used === 'string') {
+        // If it's a string, create a single material entry
+        parsedData.materialsUsed = [{
+          description: workOrderData.materials_and_parts_used,
+          quantity: '',
+          partNo: ''
+        }];
+      } else if (Array.isArray(workOrderData.materials_and_parts_used)) {
+        parsedData.materialsUsed = workOrderData.materials_and_parts_used.map(material => ({
+          description: material.description || '',
+          quantity: material.quantity?.toString() || '',
+          partNo: material.part_no || material.partNo || ''
+        }));
+      }
+    }
+    
+    console.log('Final parsed data:', parsedData);
     return parsedData;
   };
 
@@ -244,25 +210,13 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
       const data = await response.json();
       console.log('Received work order data:', data);
       
-      const workOrderData = data.response || data;
-      console.log('Processing work order data:', workOrderData);
-      
-      if (typeof workOrderData === 'string') {
-        const parsedData = parseWorkOrderResponse(workOrderData);
-        setFormData(prev => ({
-          ...prev,
-          ...parsedData,
-          partNumbers: parsedData.partNumbers || prev.partNumbers,
-          materialsUsed: parsedData.materialsUsed || prev.materialsUsed
-        }));
-      } else if (typeof workOrderData === 'object' && workOrderData !== null) {
-        setFormData(prev => ({
-          ...prev,
-          ...workOrderData,
-          partNumbers: workOrderData.partNumbers || prev.partNumbers,
-          materialsUsed: workOrderData.materialsUsed || prev.materialsUsed
-        }));
-      }
+      const parsedData = parseWorkOrderResponse(data);
+      setFormData(prev => ({
+        ...prev,
+        ...parsedData,
+        partNumbers: parsedData.partNumbers || prev.partNumbers,
+        materialsUsed: parsedData.materialsUsed || prev.materialsUsed
+      }));
       
       console.log('Form populated with generated data');
     } catch (error) {
