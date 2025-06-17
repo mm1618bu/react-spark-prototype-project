@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -341,7 +342,7 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    submitWorkOrder();
+    onSubmit(formData);
   };
 
   return (
@@ -692,7 +693,11 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
               >
                 {isGenerating ? 'Generating...' : 'Generate Work Order'}
               </Button>
-              <Button type="submit" disabled={isSubmitting}>
+              <Button 
+                type="button" 
+                onClick={submitWorkOrder}
+                disabled={isSubmitting}
+              >
                 {isSubmitting ? 'Submitting...' : 'Submit Work Order'}
               </Button>
             </div>
