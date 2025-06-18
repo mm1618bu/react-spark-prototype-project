@@ -42,6 +42,19 @@ export interface GraphData {
   data_type: 'single' | 'multi';
 }
 
+export interface MaintenanceTask {
+  id: string;
+  machine_id: string;
+  machine_name: string;
+  task_type: string;
+  description: string;
+  scheduled_date: string;
+  duration: number;
+  priority: 'low' | 'medium' | 'high' | 'critical';
+  status: 'scheduled' | 'in-progress' | 'completed' | 'overdue';
+  assigned_technician?: string;
+}
+
 export async function sendQuery(query: string, source?: string, machineId?: string): Promise<QueryResponse> {
   console.log(`sendQuery called with query: ${query}`);
   console.log(`Source: ${source || 'unknown'}`);
@@ -177,5 +190,32 @@ export async function checkBackendStatus(): Promise<boolean> {
   } catch (error) {
     console.error('Backend connection error:', error);
     return false;
+  }
+}
+
+export async function fetchMaintenanceTasks(): Promise<MaintenanceTask[]> {
+  console.log('Fetching maintenance tasks from backend');
+  console.log(`Sending GET request to: ${API_URL}/maintenance-tasks`);
+
+  try {
+    const response = await fetch(`${API_URL}/maintenance-tasks`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`Response status: ${response.status}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+
+    const data = await response.json();
+    console.log('Maintenance tasks response:', data);
+    
+    return data;
+  } catch (error) {
+    console.error('Error fetching maintenance tasks:', error);
+    throw error;
   }
 }
