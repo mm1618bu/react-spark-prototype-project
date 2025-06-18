@@ -22,19 +22,8 @@ const MaintenanceSchedulePage = () => {
       try {
         console.log('Loading maintenance tasks...');
         const tasks = await fetchMaintenanceTasks();
-        
-        // Convert scheduled_date strings to Date objects for the frontend
-        const tasksWithDates = tasks.map(task => ({
-          ...task,
-          scheduledDate: new Date(task.scheduled_date),
-          machineId: task.machine_id,
-          machineName: task.machine_name,
-          taskType: task.task_type,
-          assignedTechnician: task.assigned_technician
-        }));
-        
-        setMaintenanceTasks(tasksWithDates);
-        console.log('Maintenance tasks loaded successfully:', tasksWithDates);
+        setMaintenanceTasks(tasks);
+        console.log('Maintenance tasks loaded successfully:', tasks);
       } catch (error) {
         console.error('Failed to load maintenance tasks:', error);
         toast({
@@ -51,7 +40,7 @@ const MaintenanceSchedulePage = () => {
   }, [toast]);
 
   const getTasksForDate = (date: Date) => {
-    return maintenanceTasks.filter(task => isSameDay(task.scheduledDate, date));
+    return maintenanceTasks.filter(task => isSameDay(new Date(task.scheduled_date), date));
   };
 
   const getPriorityColor = (priority: string) => {
@@ -76,7 +65,7 @@ const MaintenanceSchedulePage = () => {
 
   // Get dates that have maintenance tasks for the main calendar
   const getDatesWithTasks = () => {
-    return maintenanceTasks.map(task => task.scheduledDate);
+    return maintenanceTasks.map(task => new Date(task.scheduled_date));
   };
 
   const datesWithTasks = getDatesWithTasks();
@@ -115,7 +104,14 @@ const MaintenanceSchedulePage = () => {
   return (
     <div className="min-h-screen flex w-full">
       <Sidebar 
-        maintenanceTasks={maintenanceTasks}
+        maintenanceTasks={maintenanceTasks.map(task => ({
+          ...task,
+          scheduledDate: new Date(task.scheduled_date),
+          machineId: task.machine_id,
+          machineName: task.machine_name,
+          taskType: task.task_type,
+          assignedTechnician: task.assigned_technician
+        }))}
         selectedDate={selectedDate}
         onDateSelect={setSelectedDate}
       />
@@ -198,8 +194,8 @@ const MaintenanceSchedulePage = () => {
                         <div key={task.id} className="border rounded-lg p-4 bg-white shadow-sm">
                           <div className="flex items-start justify-between mb-2">
                             <div>
-                              <h4 className="font-medium text-gray-900">{task.machineName}</h4>
-                              <p className="text-sm text-gray-600">{task.taskType}</p>
+                              <h4 className="font-medium text-gray-900">{task.machine_name}</h4>
+                              <p className="text-sm text-gray-600">{task.task_type}</p>
                             </div>
                             <div className={`w-3 h-3 rounded-full ${getPriorityColor(task.priority)}`} />
                           </div>
@@ -216,9 +212,9 @@ const MaintenanceSchedulePage = () => {
                             </Badge>
                           </div>
                           
-                          {task.assignedTechnician && (
+                          {task.assigned_technician && (
                             <p className="text-sm text-gray-500 mt-2">
-                              Assigned: {task.assignedTechnician}
+                              Assigned: {task.assigned_technician}
                             </p>
                           )}
                         </div>
@@ -245,7 +241,7 @@ const MaintenanceSchedulePage = () => {
                           <div className="flex items-start justify-between">
                             <div className="flex-1">
                               <div className="flex items-center space-x-3 mb-2">
-                                <h4 className="font-medium text-gray-900">{task.machineName}</h4>
+                                <h4 className="font-medium text-gray-900">{task.machine_name}</h4>
                                 <Badge className={getStatusColor(task.status)}>
                                   {task.status}
                                 </Badge>
@@ -255,11 +251,11 @@ const MaintenanceSchedulePage = () => {
                               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                                 <div>
                                   <span className="text-gray-500">Task:</span>
-                                  <p className="font-medium">{task.taskType}</p>
+                                  <p className="font-medium">{task.task_type}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Date:</span>
-                                  <p className="font-medium">{format(task.scheduledDate, 'MMM dd, yyyy')}</p>
+                                  <p className="font-medium">{format(new Date(task.scheduled_date), 'MMM dd, yyyy')}</p>
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Duration:</span>
@@ -267,7 +263,7 @@ const MaintenanceSchedulePage = () => {
                                 </div>
                                 <div>
                                   <span className="text-gray-500">Technician:</span>
-                                  <p className="font-medium">{task.assignedTechnician || 'Unassigned'}</p>
+                                  <p className="font-medium">{task.assigned_technician || 'Unassigned'}</p>
                                 </div>
                               </div>
                               
