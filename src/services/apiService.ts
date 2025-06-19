@@ -44,15 +44,15 @@ export interface GraphData {
 
 export interface MaintenanceTask {
   id: string;
-  machine_id: string;
-  machine_name: string;
-  task_type: string;
+  machineId: string;
+  machineName: string;
+  taskType: string;
   description: string;
-  scheduled_date: string;
+  scheduledDate: string;
   duration: number;
   priority: 'low' | 'medium' | 'high' | 'critical';
   status: 'scheduled' | 'in-progress' | 'completed' | 'overdue';
-  assigned_technician?: string;
+  assignedTechnician?: string;
 }
 
 export async function sendQuery(query: string, source?: string, machineId?: string): Promise<QueryResponse> {
@@ -213,7 +213,8 @@ export async function fetchMaintenanceTasks(): Promise<MaintenanceTask[]> {
     const data = await response.json();
     console.log('Maintenance tasks response:', data);
     
-    return data;
+    // Extract tasks array from the response object
+    return data.tasks || [];
   } catch (error) {
     console.error('Error fetching maintenance tasks:', error);
     throw error;
