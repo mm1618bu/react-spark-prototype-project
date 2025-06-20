@@ -19,11 +19,8 @@ const MaintenanceSchedulePage = () => {
   useEffect(() => {
     const loadMaintenanceTasks = async () => {
       try {
-        console.log('Loading maintenance tasks...');
         const tasks = await fetchMaintenanceTasks();
-        console.log('Raw tasks from API:', tasks);
         setMaintenanceTasks(tasks);
-        console.log('Maintenance tasks loaded successfully:', tasks);
       } catch (error) {
         console.error('Failed to load maintenance tasks:', error);
         toast({
@@ -40,14 +37,7 @@ const MaintenanceSchedulePage = () => {
   }, [toast]);
 
   const getTasksForDate = (date: Date) => {
-    console.log('Getting tasks for date:', date);
-    const tasks = maintenanceTasks.filter(task => {
-      const taskDate = new Date(task.scheduledDate);
-      console.log('Comparing task date:', taskDate, 'with selected date:', date);
-      return isSameDay(taskDate, date);
-    });
-    console.log('Found tasks for selected date:', tasks);
-    return tasks;
+    return maintenanceTasks.filter(task => isSameDay(new Date(task.scheduledDate), date));
   };
 
   const getPriorityColor = (priority: string) => {
@@ -72,10 +62,7 @@ const MaintenanceSchedulePage = () => {
 
   // Get dates that have maintenance tasks for the main calendar
   const getDatesWithTasks = () => {
-    console.log('Getting dates with tasks from maintenance tasks:', maintenanceTasks);
-    const dates = maintenanceTasks.map(task => new Date(task.scheduledDate));
-    console.log('Dates with tasks:', dates);
-    return dates;
+    return maintenanceTasks.map(task => new Date(task.scheduledDate));
   };
 
   const datesWithTasks = getDatesWithTasks();
@@ -170,7 +157,6 @@ const MaintenanceSchedulePage = () => {
                     selected={selectedDate}
                     onSelect={(date) => {
                       if (date) {
-                        console.log('Date selected from calendar:', date);
                         setSelectedDate(date);
                       }
                     }}
