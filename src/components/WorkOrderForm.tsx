@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { X } from 'lucide-react';
+import { X, Sparkles, Zap } from 'lucide-react';
 
 interface WorkOrderFormProps {
   onClose: () => void;
@@ -599,8 +598,14 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
                 type="button" 
                 onClick={generateWorkOrder}
                 disabled={isGenerating}
+                className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold shadow-lg border-0 flex items-center gap-2 relative overflow-hidden"
               >
-                {isGenerating ? 'Generating...' : 'Generate Work Order'}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-cyan-400/20 animate-pulse"></div>
+                <Zap className="h-4 w-4 relative z-10" />
+                <span className="relative z-10">
+                  {isGenerating ? 'AI Generating...' : 'AI Auto-fill'}
+                </span>
+                <Sparkles className="h-3 w-3 relative z-10" />
               </Button>
               <Button type="submit">
                 Submit Work Order
