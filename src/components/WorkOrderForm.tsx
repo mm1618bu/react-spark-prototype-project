@@ -598,9 +598,9 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
                 type="button" 
                 onClick={generateWorkOrder}
                 disabled={isGenerating}
-                className="bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600 hover:from-purple-700 hover:via-blue-700 hover:to-cyan-700 text-white font-semibold shadow-lg border-0 flex items-center gap-2 relative overflow-hidden"
+                className="bg-gradient-to-r from-sage-500 via-sage-600 to-sage-700 hover:from-sage-600 hover:via-sage-700 hover:to-sage-800 text-white font-semibold shadow-lg border-0 flex items-center gap-2 relative overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-purple-400/20 via-blue-400/20 to-cyan-400/20 animate-pulse"></div>
+                <div className="absolute inset-0 bg-gradient-to-r from-sage-400/20 via-sage-500/20 to-sage-600/20 animate-pulse"></div>
                 <Zap className="h-4 w-4 relative z-10" />
                 <span className="relative z-10">
                   {isGenerating ? 'AI Generating...' : 'AI Auto-fill'}
