@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -261,29 +262,33 @@ const InspectionPage = () => {
         <ScrollArea className="flex-1">
           <div className="p-6">
             <div className="max-w-6xl mx-auto">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-4">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={handleBackClick}
+                    className="flex items-center gap-2"
+                  >
+                    <ArrowLeft size={16} />
+                    Back to Machine Health
+                  </Button>
+                  <h1 className="text-2xl font-bold text-gray-900">
+                    Anomaly Inspection
+                    {searchParams.get('machineName') && (
+                      <span className="text-lg font-normal text-gray-600 ml-2">
+                        - {searchParams.get('machineName')}
+                      </span>
+                    )}
+                  </h1>
+                </div>
                 <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={handleBackClick}
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft size={16} />
-                  Back to Machine Health
-                </Button>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Anomaly Inspection
-                  {searchParams.get('machineName') && (
-                    <span className="text-lg font-normal text-gray-600 ml-2">
-                      - {searchParams.get('machineName')}
-                    </span>
-                  )}
-                </h1>
-                <Button 
+                  variant="outline"
+                  size="sm"
                   onClick={handleMultiColorButtonClick}
-                  className="bg-gradient-to-r from-sage-500 via-purple-500 to-pink-500 hover:from-sage-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg"
+                  className="bg-gradient-to-r from-sage-500 via-purple-500 to-pink-500 hover:from-sage-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg border-0 flex items-center gap-2"
                 >
-                  <Sparkles className="h-4 w-4 mr-2" />
+                  <Sparkles className="h-4 w-4" />
                   Generate Work Order
                 </Button>
               </div>
