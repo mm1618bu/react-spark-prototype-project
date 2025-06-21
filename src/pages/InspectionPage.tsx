@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -280,9 +279,6 @@ const InspectionPage = () => {
                     </span>
                   )}
                 </h1>
-                <Button onClick={() => fetchGraphData()} disabled={isLoading}>
-                  {isLoading ? 'Refreshing...' : 'Refresh Data'}
-                </Button>
                 <Button 
                   onClick={handleMultiColorButtonClick}
                   className="bg-gradient-to-r from-sage-500 via-purple-500 to-pink-500 hover:from-sage-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg"
