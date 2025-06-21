@@ -285,7 +285,7 @@ const InspectionPage = () => {
                 </Button>
                 <Button 
                   onClick={handleMultiColorButtonClick}
-                  className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold shadow-lg"
+                  className="bg-gradient-to-r from-sage-500 via-purple-500 to-pink-500 hover:from-sage-600 hover:via-purple-600 hover:to-pink-600 text-white font-semibold shadow-lg"
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
                   Generate Work Order
