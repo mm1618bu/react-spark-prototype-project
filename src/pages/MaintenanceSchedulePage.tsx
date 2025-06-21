@@ -4,16 +4,18 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarDays, Clock, Wrench } from 'lucide-react';
+import { CalendarDays, Clock, Wrench, Sparkles } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 import { fetchMaintenanceTasks, MaintenanceTask } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
+import { WorkOrderForm } from '@/components/WorkOrderForm';
 
 const MaintenanceSchedulePage = () => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [viewMode, setViewMode] = useState<'calendar' | 'list'>('list');
   const [maintenanceTasks, setMaintenanceTasks] = useState<MaintenanceTask[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showWorkOrderForm, setShowWorkOrderForm] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,6 +69,16 @@ const MaintenanceSchedulePage = () => {
 
   const datesWithTasks = getDatesWithTasks();
   const selectedDateTasks = getTasksForDate(selectedDate);
+
+  const handleWorkOrderSubmit = (workOrderData: any) => {
+    console.log('Work order data:', workOrderData);
+    setShowWorkOrderForm(false);
+    
+    toast({
+      title: "Work Order Generated",
+      description: "Work order has been successfully created.",
+    });
+  };
 
   if (loading) {
     return (
@@ -125,6 +137,16 @@ const MaintenanceSchedulePage = () => {
             </div>
             
             <div className="flex items-center space-x-2">
+              <Button onClick={() => setLoading(true)} disabled={loading}>
+                {loading ? 'Refreshing...' : 'Refresh Data'}
+              </Button>
+              <Button 
+                onClick={() => setShowWorkOrderForm(true)}
+                className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold shadow-lg"
+              >
+                <Sparkles className="h-4 w-4 mr-2" />
+                Multi Color Super Cool AI Button
+              </Button>
               <Button 
                 variant={viewMode === 'calendar' ? 'default' : 'outline'}
                 onClick={() => setViewMode('calendar')}
@@ -285,6 +307,14 @@ const MaintenanceSchedulePage = () => {
           )}
         </div>
       </div>
+
+      {/* Work Order Form Modal */}
+      {showWorkOrderForm && (
+        <WorkOrderForm
+          onClose={() => setShowWorkOrderForm(false)}
+          onSubmit={handleWorkOrderSubmit}
+        />
+      )}
     </div>
   );
 };
