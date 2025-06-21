@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
@@ -287,7 +288,7 @@ const InspectionPage = () => {
                   className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold shadow-lg"
                 >
                   <Sparkles className="h-4 w-4 mr-2" />
-                  Multi Color Super Cool AI Button
+                  Generate Work Order
                 </Button>
               </div>
               
