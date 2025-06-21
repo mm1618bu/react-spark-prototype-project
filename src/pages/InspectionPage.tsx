@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, ResponsiveContainer, ReferenceArea } from 'recharts';
-import { ArrowLeft, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowLeft, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ChatPromptBar } from '@/components/ChatPromptBar';
 import { WorkOrderForm } from '@/components/WorkOrderForm';
@@ -83,6 +83,12 @@ const InspectionPage = () => {
   const handleBackClick = () => {
     console.log('Back button clicked, navigating to /machine-health');
     navigate('/machine-health');
+  };
+
+  const handleMultiColorButtonClick = () => {
+    const machineIdFromParams = searchParams.get('machineId');
+    console.log('InspectionPage - Multi Color Button clicked, opening WorkOrderForm with machineId:', machineIdFromParams);
+    setShowWorkOrderForm(true);
   };
 
   const handleMessageSent = async (message: string) => {
@@ -275,6 +281,13 @@ const InspectionPage = () => {
                 </h1>
                 <Button onClick={() => fetchGraphData()} disabled={isLoading}>
                   {isLoading ? 'Refreshing...' : 'Refresh Data'}
+                </Button>
+                <Button 
+                  onClick={handleMultiColorButtonClick}
+                  className="bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 hover:from-purple-600 hover:via-pink-600 hover:to-red-600 text-white font-semibold shadow-lg"
+                >
+                  <Sparkles className="h-4 w-4 mr-2" />
+                  Multi Color Super Cool AI Button
                 </Button>
               </div>
               
