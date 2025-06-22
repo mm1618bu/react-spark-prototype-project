@@ -4,7 +4,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
-import { CalendarDays, Clock, Wrench, Sparkles } from 'lucide-react';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { CalendarDays, Clock, Wrench, Sparkles, ChevronDown, CheckCircle, Edit, Calendar as CalendarIcon } from 'lucide-react';
 import { format, isSameDay } from 'date-fns';
 import { fetchMaintenanceTasks, MaintenanceTask } from '@/services/apiService';
 import { useToast } from '@/hooks/use-toast';
@@ -78,6 +79,31 @@ const MaintenanceSchedulePage = () => {
       title: "Work Order Generated",
       description: "Work order has been successfully created.",
     });
+  };
+
+  const handleTaskAction = (taskId: string, action: 'resolve' | 'edit' | 'reschedule') => {
+    console.log(`${action} task:`, taskId);
+    
+    switch (action) {
+      case 'resolve':
+        toast({
+          title: "Task Resolved",
+          description: "Maintenance task has been marked as completed.",
+        });
+        break;
+      case 'edit':
+        toast({
+          title: "Edit Task",
+          description: "Edit task functionality will be implemented.",
+        });
+        break;
+      case 'reschedule':
+        toast({
+          title: "Reschedule Task",
+          description: "Reschedule task functionality will be implemented.",
+        });
+        break;
+    }
   };
 
   if (loading) {
@@ -291,10 +317,29 @@ const MaintenanceSchedulePage = () => {
                             </div>
                             
                             <div className="ml-4">
-                              <Button variant="outline" size="sm">
-                                <Wrench className="h-4 w-4 mr-1" />
-                                Manage
-                              </Button>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button variant="outline" size="sm">
+                                    <Wrench className="h-4 w-4 mr-1" />
+                                    Manage
+                                    <ChevronDown className="h-4 w-4 ml-1" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuItem onClick={() => handleTaskAction(task.id, 'resolve')}>
+                                    <CheckCircle className="h-4 w-4 mr-2" />
+                                    Resolve Task
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleTaskAction(task.id, 'edit')}>
+                                    <Edit className="h-4 w-4 mr-2" />
+                                    Edit Task
+                                  </DropdownMenuItem>
+                                  <DropdownMenuItem onClick={() => handleTaskAction(task.id, 'reschedule')}>
+                                    <CalendarIcon className="h-4 w-4 mr-2" />
+                                    Reschedule Task
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
                             </div>
                           </div>
                         </div>
