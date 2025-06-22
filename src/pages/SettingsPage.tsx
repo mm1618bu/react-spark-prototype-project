@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,31 +11,7 @@ import { useNavigate } from 'react-router-dom';
 const SettingsPage = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [isConnected, setIsConnected] = useState(false);
-
-  // Check connection status on component mount
-  useEffect(() => {
-    const checkConnectionStatus = async () => {
-      try {
-        const response = await fetch('http://localhost:5001/connection-status', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          setIsConnected(data.connected || false);
-        }
-      } catch (error) {
-        console.log('Could not check connection status:', error);
-        // Don't show error for this, just assume not connected
-      }
-    };
-
-    checkConnectionStatus();
-  }, []);
+  const isConnected = true; // Hardcoded as connected
 
   const handleDataSourceSelect = (source: string) => {
     if (source === 'SQL') {
