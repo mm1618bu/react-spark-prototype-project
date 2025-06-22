@@ -37,7 +37,7 @@ const InspectionPage = () => {
   const samplePrompts = [
     "What could be causing these vibration anomalies?",
     "Analyze the pattern of anomalies in this data",
-    "Do you want to generate a Work Order?",
+    "Do you want to generate a work order?",
     "How severe are these detected anomalies?"
   ];
 
@@ -144,7 +144,7 @@ const InspectionPage = () => {
   };
 
   const handleSamplePromptClick = (prompt: string) => {
-    if (prompt === "Do you want to generate a Work Order?") {
+    if (prompt === "Do you want to generate a work order?") {
       const machineIdFromParams = searchParams.get('machineId');
       console.log('InspectionPage - Opening WorkOrderForm with machineId:', machineIdFromParams);
       setShowWorkOrderForm(true);
@@ -289,7 +289,7 @@ const InspectionPage = () => {
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-sage-400/20 via-sage-500/20 to-sage-600/20 animate-pulse"></div>
                   <Sparkles className="h-4 w-4 relative z-10" />
-                  <span className="relative z-10">AI Generate Work Order</span>
+                  <span className="relative z-10">Generate Work Order</span>
                 </Button>
               </div>
               
