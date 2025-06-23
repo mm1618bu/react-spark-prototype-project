@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
@@ -5,7 +6,7 @@ import { Footer } from '@/components/Footer';
 import { useSearchParams } from 'react-router-dom';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { SendIcon, ArrowLeft } from 'lucide-react';
+import { SendIcon, ArrowLeft, User, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { sendQuery, QueryResponse } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
@@ -106,35 +107,134 @@ const ChatPage = () => {
         </header>
         
         <main className="flex-1 overflow-y-auto p-4 bg-gray-50">
-          <div className="max-w-3xl mx-auto space-y-4">
+          <div className="max-w-4xl mx-auto space-y-6">
             {messages.map((message, index) => (
-              <div 
-                key={index} 
-                className={`p-4 rounded-lg ${
-                  message.role === 'user' 
-                    ? 'bg-sage-100 ml-12' 
-                    : 'bg-white border shadow-sm mr-12'
-                }`}
-              >
-                {message.role === 'system' && message.format === 'markdown' ? (
-                  <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
+              <div key={index} className="flex gap-4 items-start">
+                {/* Avatar */}
+                <div className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center ${
+                  message.role === 'user' ? 'bg-sage-500 text-white' : 'bg-gray-600 text-white'
+                }`}>
+                  {message.role === 'user' ? <User size={16} /> : <Bot size={16} />}
+                </div>
+                
+                {/* Message Content */}
+                <div className="flex-1 min-w-0">
+                  <div className="mb-1">
+                    <span className="text-sm font-medium text-gray-700">
+                      {message.role === 'user' ? 'You' : 'Assistant'}
+                    </span>
                   </div>
-                ) : (
-                  <p>{message.content}</p>
-                )}
+                  
+                  <div className="prose prose-sm max-w-none prose-gray">
+                    {message.role === 'system' && message.format === 'markdown' ? (
+                      <ReactMarkdown 
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          // Custom styling for tables
+                          table: ({ children }) => (
+                            <div className="overflow-x-auto my-4">
+                              <table className="min-w-full border-collapse border border-gray-300">
+                                {children}
+                              </table>
+                            </div>
+                          ),
+                          th: ({ children }) => (
+                            <th className="border border-gray-300 px-4 py-2 bg-gray-50 text-left font-semibold">
+                              {children}
+                            </th>
+                          ),
+                          td: ({ children }) => (
+                            <td className="border border-gray-300 px-4 py-2">
+                              {children}
+                            </td>
+                          ),
+                          // Better bullet points
+                          ul: ({ children }) => (
+                            <ul className="list-disc pl-6 space-y-1 my-3">
+                              {children}
+                            </ul>
+                          ),
+                          ol: ({ children }) => (
+                            <ol className="list-decimal pl-6 space-y-1 my-3">
+                              {children}
+                            </ol>
+                          ),
+                          li: ({ children }) => (
+                            <li className="text-gray-700">
+                              {children}
+                            </li>
+                          ),
+                          // Code blocks
+                          code: ({ inline, children }) => (
+                            inline ? (
+                              <code className="bg-gray-100 px-1 py-0.5 rounded text-sm font-mono text-gray-800">
+                                {children}
+                              </code>
+                            ) : (
+                              <code className="block bg-gray-100 p-3 rounded-lg text-sm font-mono text-gray-800 overflow-x-auto">
+                                {children}
+                              </code>
+                            )
+                          ),
+                          // Headings
+                          h1: ({ children }) => (
+                            <h1 className="text-xl font-bold text-gray-900 mt-6 mb-3">
+                              {children}
+                            </h1>
+                          ),
+                          h2: ({ children }) => (
+                            <h2 className="text-lg font-semibold text-gray-900 mt-5 mb-2">
+                              {children}
+                            </h2>
+                          ),
+                          h3: ({ children }) => (
+                            <h3 className="text-md font-semibold text-gray-900 mt-4 mb-2">
+                              {children}
+                            </h3>
+                          ),
+                          // Paragraphs
+                          p: ({ children }) => (
+                            <p className="text-gray-700 leading-relaxed mb-3">
+                              {children}
+                            </p>
+                          ),
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <p className="text-gray-700 leading-relaxed">{message.content}</p>
+                    )}
+                  </div>
+                </div>
               </div>
             ))}
+            
             {isLoading && (
-              <div className="bg-white border shadow-sm p-4 rounded-lg mr-12">
-                <p className="text-gray-500">Thinking...</p>
+              <div className="flex gap-4 items-start">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center bg-gray-600 text-white">
+                  <Bot size={16} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="mb-1">
+                    <span className="text-sm font-medium text-gray-700">Assistant</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
+                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
+                    </div>
+                    <span className="text-sm text-gray-500">Thinking...</span>
+                  </div>
+                </div>
               </div>
             )}
           </div>
         </main>
         
         <div className="p-4 border-t bg-white">
-          <form onSubmit={handleSubmit} className="flex gap-2 max-w-3xl mx-auto">
+          <form onSubmit={handleSubmit} className="flex gap-2 max-w-4xl mx-auto">
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
