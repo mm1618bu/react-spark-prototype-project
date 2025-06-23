@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { X, Sparkles, Zap } from 'lucide-react';
+import { toast } from '@/hooks/use-toast';
 
 interface WorkOrderFormProps {
   onClose: () => void;
@@ -44,6 +45,7 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
   });
 
   const [isGenerating, setIsGenerating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({
@@ -248,9 +250,48 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit(formData);
+    setIsSubmitting(true);
+    
+    try {
+      console.log('Submitting work order to /work-order endpoint:', formData);
+      
+      const response = await fetch('http://localhost:5001/work-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      });
+
+      console.log(`Work order submission response status: ${response.status}`);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+
+      const result = await response.json();
+      console.log('Work order submission result:', result);
+      
+      toast({
+        title: "Work Order Submitted",
+        description: "Work order has been successfully submitted to the system.",
+      });
+      
+      // Call the parent onSubmit callback
+      onSubmit(formData);
+      
+    } catch (error) {
+      console.error('Error submitting work order:', error);
+      toast({
+        title: "Submission Failed",
+        description: "Failed to submit work order. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -591,13 +632,13 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
 
             {/* Form Actions */}
             <div className="flex justify-end gap-4 pt-4">
-              <Button type="button" variant="outline" onClick={onClose}>
+              <Button type="button" variant="outline" onClick={onClose} disabled={isSubmitting}>
                 Cancel
               </Button>
               <Button 
                 type="button" 
                 onClick={generateWorkOrder}
-                disabled={isGenerating}
+                disabled={isGenerating || isSubmitting}
                 className="bg-gradient-to-r from-sage-500 via-sage-600 to-sage-700 hover:from-sage-600 hover:via-sage-700 hover:to-sage-800 text-white font-semibold shadow-lg border-0 flex items-center gap-2 relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-sage-400/20 via-sage-500/20 to-sage-600/20 animate-pulse"></div>
@@ -607,8 +648,8 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
                 </span>
                 <Sparkles className="h-3 w-3 relative z-10" />
               </Button>
-              <Button type="submit">
-                Submit Work Order
+              <Button type="submit" disabled={isSubmitting || isGenerating}>
+                {isSubmitting ? 'Submitting...' : 'Submit Work Order'}
               </Button>
             </div>
           </form>
