@@ -256,13 +256,20 @@ export const WorkOrderForm = ({ onClose, onSubmit, machineId }: WorkOrderFormPro
     
     try {
       console.log('Submitting work order to /work-order endpoint:', formData);
+      console.log('Machine ID being submitted:', machineId);
+      
+      // Create payload with form data and machine_id
+      const payload = {
+        ...formData,
+        machine_id: machineId
+      };
       
       const response = await fetch('http://localhost:5001/work-order', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       console.log(`Work order submission response status: ${response.status}`);
