@@ -11,6 +11,7 @@ import { ChatPromptBar } from '@/components/ChatPromptBar';
 import { WorkOrderForm } from '@/components/WorkOrderForm';
 import { sendQuery, fetchInspectionData, InspectionFilters, GraphData } from '@/services/apiService';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'system';
@@ -548,7 +549,7 @@ const InspectionPage = () => {
                         >
                           {message.role === 'system' && message.format === 'markdown' ? (
                             <div className="prose prose-sm max-w-none">
-                              <ReactMarkdown>{message.content}</ReactMarkdown>
+                              <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                             </div>
                           ) : (
                             <p className="text-sm">{message.content}</p>

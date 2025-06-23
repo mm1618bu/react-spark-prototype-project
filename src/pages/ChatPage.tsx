@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Sidebar } from '@/components/Sidebar';
 import { Logo } from '@/components/Logo';
@@ -11,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { sendQuery, QueryResponse } from '@/services/apiService';
 import { toast } from '@/hooks/use-toast';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 interface Message {
   role: 'user' | 'system';
@@ -118,7 +118,7 @@ const ChatPage = () => {
               >
                 {message.role === 'system' && message.format === 'markdown' ? (
                   <div className="prose prose-sm max-w-none">
-                    <ReactMarkdown>{message.content}</ReactMarkdown>
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
                   </div>
                 ) : (
                   <p>{message.content}</p>
